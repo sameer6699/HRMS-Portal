@@ -1,0 +1,98 @@
+{% extends "layouts/base-fullscreen.html" %}
+
+{% block title %} Helpdesk Portal - Sign In {% endblock %}
+
+{% block content %}
+<main>
+    <section class="vh-lg-100 mt-5 mt-lg-0 bg-soft d-flex align-items-center">
+        <div class="container">
+            <p class="text-center">HelpDesk Management Portal</p>
+            <div class="col-12 d-flex align-items-center justify-content-center">
+                <div class="bg-white shadow border-0 rounded border-light p-4 p-lg-5 w-100 fmxw-500">
+                    <div class="text-center text-md-center mb-4 mt-md-0">
+                        <h1 class="mb-0 h3">Helpdesk Portal Sign IN</h1>
+                        <br />
+                        <p id="password-error" class="alert text-center" style="background-color: #f0bc74; border-color: #f0bc74;">
+                            <strong></strong> <span id="password-error-text">
+                                {% if msg %} {{ msg }} {% else %} Enter Your Credentials {% endif %}
+                            </span>
+                        </p> 
+                    </div>
+                    
+                    <form method="post" action="" class="mt-4">
+                        {% csrf_token %}
+
+                        <!-- Username Field -->
+                        <div class="form-group mb-4">
+                            <label for="username">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <span class="fas fa-user-circle"></span>
+                                </span>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>  
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="form-group mb-4">
+                            <label for="password">Your Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <span class="fas fa-unlock-alt"></span>
+                                </span>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                                <span class="input-group-text toggle-password" onclick="togglePassword('password', this)">
+                                    <i class="fas fa-eye"></i>
+                                </span>
+                            </div>  
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-top mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="remember">
+                                <label class="form-check-label mb-0" for="remember">Remember me</label>
+                            </div>
+                            <div><a href="{% url 'forgot_password' %}" class="small text-right">Lost password?</a></div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" name="login" class="btn btn-gray-800">Sign IN</button>
+                        </div>
+                    </form>
+                    
+                    <br />
+                    <div class="d-flex justify-content-center align-items-center mt-4">
+                        <span class="fw-normal">
+                            Not registered? <a href="{% url 'register' %}" class="fw-bold">Create account</a>
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-center align-items-center mt-4">
+                        <span class="fw-normal">
+                            <a href="{% url 'reset_password' %}" class="fw-bold">Reset Password</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    function togglePassword(fieldId, eyeIcon) {
+        var passwordField = document.getElementById(fieldId);
+        var icon = eyeIcon.querySelector("i");
+
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            passwordField.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+    }
+</script>
+{% endblock %}

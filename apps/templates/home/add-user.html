@@ -1,0 +1,170 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} UI Forms {% endblock %} 
+
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+  <div class="py-4">
+      <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+          <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+              <li class="breadcrumb-item">
+                <a href="#">
+                    <i class="fas fa-home icon-xxs" style="color: currentColor;"></i> <!-- Font Awesome home icon -->
+                </a>                
+              </li>
+              <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Add User</li>
+          </ol>
+      </nav>
+      <div class="d-flex justify-content-between w-100 flex-wrap">
+        <div class="mb-3 mb-lg-0">
+            <h1 class="h4">Add User</h1>
+            <p class="mb-0">Here, you can easily add new users to the system.</p>
+        </div>        
+        <div>
+            <a href="#" class="btn btn-outline-gray">
+                <i class="far fa-question-circle me-1"></i> More Information
+            </a>
+        </div>
+      </div>
+  </div>
+<!---------------------------------------------------  Start of the Form Section  --------------------------------------->
+  <div class="row">
+      <div class="col-12 mb-4">
+          <div class="card border-0 shadow components-section">
+              <div class="card-body">
+                <h4 class="card-title mb-4"> Add New User</h4>  
+                <!------------------------------------------------- First Row  ----------------------------------------->
+                <div class="row">
+                    <!-- user ID Readonly Mode -->
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <label for="userID">User ID</label>
+                        <input type="text" class="form-control" id="userID" name="userID" readonly>
+                    </div>
+                    <!-- User Name -->
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <label for="userName">User Name</label>
+                        <input type="text" class="form-control" id="userName" name="userName" placeholder="Enter User Name" required>
+                        <div class="invalid-feedback" id="userNameFeedback">User Name is required and can only contain letters, numbers, underscores, or hyphens.</div>
+                    </div>
+                </div>
+                <!------------------------------------------------- Second Row Component  --------------------------------->
+                <div class="row">
+                    <!-- Email -->
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email" required>
+                        <div class="invalid-feedback" id="emailFeedback">Please enter a valid email address.</div>
+                    </div>
+                    
+                    <!-- Mobile Number -->
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <label for="mobileNo">Mobile Number</label>
+                        <input type="tel" class="form-control" id="mobileNo" name="mobileNo" placeholder="Enter Mobile Number" pattern="[0-9]{10}" required>
+                        <div class="invalid-feedback" id="mobileNoFeedback">Please enter a valid 10-digit mobile number.</div>
+                    </div>
+                </div>
+                <!------------------------------------------------------- Third Row Component  --------------------------------->
+                <div class="row">
+                    <!-- User Role -->
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <label for="userRole">User Role</label>
+                        <select class="form-select" id="userRole" name="userRole" required>
+                            <option value="" selected disabled>Select Role</option>
+                            <option value="Admin">Admin</option>
+                            <option value="User">User</option>
+                            <option value="Supervisor">Supervisor</option>
+                        </select>
+                        <div class="invalid-feedback" id="userRoleFeedback">Please select a role.</div>
+                    </div>
+
+                    <!-- Department -->
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <label for="department">Department</label>
+                        <select class="form-select" id="department" name="department" required>
+                            <option value="" selected disabled>Select Department</option>
+                            <option value="Tester">Tester</option>
+                            <option value="Developer">Developer</option>
+                            <option value="Support">Support</option>
+                        </select>
+                        <div class="invalid-feedback" id="departmentFeedback">Please select a department.</div>
+                    </div>
+                </div>
+                <!------------------------------------------------------- Fourth Row Component  --------------------------------->
+                <div class="row">
+                    <!-- Password -->
+                    <div class="col-lg-6 col-md-12 mb-4 position-relative">
+                        <label for="password">Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
+                            <span class="input-group-text" onclick="togglePassword('password', 'toggleIcon1')" style="cursor: pointer;">
+                                <i class="fa fa-eye" id="toggleIcon1"></i>
+                            </span>
+                        </div>
+                        <div class="invalid-feedback" id="passwordFeedback">Password must be at least 6 characters long, containing letters, numbers, and special characters.</div>
+                    </div>
+                    <!-- Confirm Password -->
+                    <div class="col-lg-6 col-md-12 mb-4 position-relative">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" required>
+                            <span class="input-group-text" onclick="togglePassword('confirmPassword', 'toggleIcon2')" style="cursor: pointer;">
+                                <i class="fa fa-eye" id="toggleIcon2"></i>
+                            </span>
+                        </div>
+                        <div class="invalid-feedback" id="confirmPasswordFeedback">Passwords do not match.</div>
+                    </div>
+                </div>
+                <!------------------------------------------------------- Fifth Row Component Button  --------------------------------->
+                <div class="row">
+                    <!-- Submit Button -->
+                    <div class="col-12 text-center">
+                        <button type="submit" class="btn btn-primary">Add User</button>
+                    </div>
+                </div>
+                <!------------------------------------------------------- End of The Form -------------------------------------------------->
+              </div>
+          </div>
+      </div>
+  </div>
+{% endblock content %}
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>  <!-- jQuery -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script> <!-- Bootstrap Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 -->\
+
+<!-------------------------- Java Script Code for Password Visibality Toggle Functionality  ------------------------->
+<script>
+function togglePassword(inputId, iconId) {
+    let inputField = document.getElementById(inputId);
+    let icon = document.getElementById(iconId);
+
+    if (inputField.type === "password") {
+        inputField.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+    } else {
+        inputField.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+    }
+}
+</script>
+<!--   Java Script Code For Autogenerated User ID  -->
+<script>
+    function generateUserID() {
+        let today = new Date();
+        let day = String(today.getDate()).padStart(2, '0'); // Ensure two digits
+        let month = String(today.getMonth() + 1).padStart(2, '0'); // Ensure two digits
+        let randomNum = String(Math.floor(10 + Math.random() * 90)); // Random 2-digit number (10-99)
+        
+        let userID = `ICS${day}${month}${randomNum}`;
+        document.getElementById("userID").value = userID;
+    }
+
+    // Generate user ID on page load
+    window.onload = generateUserID;
+</script>
+{% endblock javascripts %}
