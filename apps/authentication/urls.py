@@ -25,8 +25,10 @@ urlpatterns = [
     path('helpdesk_dashbaord/', help_desk_portal, name='helpdesk_portal'),
     path('dashboard/', dashboard_view, name='dashboard'),
 
+
     # URL Routes of Main Dashboard Page.
     path('add-user/', add_user_view, name='add_user'),
+    path("add-user-data/", add_user_data, name="add_user-data"),    # Ajax Url To Add User into MongoDB Database.
 
     # Side Bar Component routes
     path('transactions/', transactions_view, name='transactions'),

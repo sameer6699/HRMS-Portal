@@ -1,15 +1,19 @@
-# Create your views here.
 import datetime
+import json
+from typing import Collection
 import bcrypt
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import *
 from django.contrib.auth.decorators import login_required
 import pymongo
+from pymongo import MongoClient
 from django.contrib.auth import logout
 from .forms import LoginForm, SignUpForm
 from dotenv import load_dotenv
 from datetime import datetime
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 import os
 
 # user Name :- Sameer_Jadhav
@@ -71,6 +75,7 @@ def login_view(request):
 
     return render(request, "accounts/login.html", {"msg": msg})
 
+
 def logout_view(request):
     print("Logout function called")
     """
@@ -80,7 +85,7 @@ def logout_view(request):
         request.session.flush()  # Clears all session data
 
     return redirect("/login/")
-
+# Function to handle user Registration in the signIN view section
 def register_user(request):
     msg = None
     success = False
@@ -118,8 +123,7 @@ def register_user(request):
 
     return render(request, "accounts/register.html", {"msg": msg, "success": success})
 
-
-# Hre in this rote user is redirected to the dashboard page after login.
+# Here in this rote user is redirected to the dashboard page after login.
 def help_desk_portal(request):
     if "user_id" not in request.session:
         return redirect("/login/") 
@@ -127,6 +131,57 @@ def help_desk_portal(request):
 
 def dashboard_view(request):
     return render(request, 'home/dashboard.html')
+
+# Function to add user data into MongoDB
+def add_user_data(request):
+    if request.method == "POST":
+        try:
+            print("Request received!") 
+            client = MongoClient("mongodb://localhost:27017/")  
+            db = client["CRM_Tickit_Management_System"]  
+            coll_user = db["coll_add_user"]
+
+            if not request.POST:
+                return JsonResponse({"success": False, "message": "No data received!"}, status=400)
+
+            # Extract user data
+            userID = request.POST.get("userID")
+            userName = request.POST.get("userName")
+            email = request.POST.get("email")
+            mobileNo = request.POST.get("mobileNo")
+            userRole = request.POST.get("userRole")
+            department = request.POST.get("department")
+            password = request.POST.get("password")  
+
+            # Validate data
+            if not all([userID, userName, email, mobileNo, userRole, department, password]):
+                return JsonResponse({"success": False, "message": "All fields are required."}, status=400)
+
+            hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+
+            user_data = {
+                "userID": userID,
+                "userName": userName,
+                "email": email,
+                "mobileNo": mobileNo,
+                "userRole": userRole,
+                "department": department,
+                "password": hashed_password.decode("utf-8"), 
+            }
+
+            insert_result = coll_user.insert_one(user_data)
+
+            if insert_result.inserted_id:
+                return JsonResponse({"success": True, "message": "User added successfully!"})
+            else:
+                return JsonResponse({"success": False, "message": "Failed to add user."}, status=500)
+
+        except Exception as e:
+            print("Error:", e)  # Debugging
+            return JsonResponse({"success": False, "message": str(e)}, status=500)
+
+    return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
+
 
 # Dashboard View Function
 def add_user_view(request):
