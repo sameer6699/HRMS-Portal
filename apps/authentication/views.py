@@ -8,10 +8,11 @@ from django.contrib.auth import *
 from django.contrib.auth.decorators import login_required
 import pymongo
 from pymongo import MongoClient
+from bson import ObjectId
 from django.contrib.auth import logout
 from .forms import LoginForm, SignUpForm
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime 
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 import os
@@ -85,6 +86,7 @@ def logout_view(request):
         request.session.flush()  # Clears all session data
 
     return redirect("/login/")
+
 # Function to handle user Registration in the signIN view section
 def register_user(request):
     msg = None
@@ -123,6 +125,10 @@ def register_user(request):
 
     return render(request, "accounts/register.html", {"msg": msg, "success": success})
 
+# Function to handle user login in section
+def user_login(request):
+    return render(request, 'accounts/user_login.html')
+
 # Here in this rote user is redirected to the dashboard page after login.
 def help_desk_portal(request):
     if "user_id" not in request.session:
@@ -131,6 +137,7 @@ def help_desk_portal(request):
 
 def dashboard_view(request):
     return render(request, 'home/dashboard.html')
+
 
 # Function to add user data into MongoDB
 def add_user_data(request):
@@ -157,8 +164,23 @@ def add_user_data(request):
             if not all([userID, userName, email, mobileNo, userRole, department, password]):
                 return JsonResponse({"success": False, "message": "All fields are required."}, status=400)
 
+            # Check if the userName or email already exist in the database
+            existing_user = coll_user.find_one({"$or": [{"userName": userName}, {"email": email}]})
+            
+            if existing_user:
+                if existing_user.get("userName") == userName:
+                    return JsonResponse({"success": False, "message": "User Name is already taken use different user name."}, status=400)
+                if existing_user.get("email") == email:
+                    return JsonResponse({"success": False, "message": "Email is already in use use different email."}, status=400)
+
+            # Hash the password
             hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
 
+            # Add 'created_at' and 'created_time'
+            current_date = datetime.now().strftime('%Y-%m-%d')  # Current date in YYYY-MM-DD format
+            current_time = datetime.now().strftime('%H:%M:%S')  # Current time in HH:MM:SS format
+
+            # User data including the new fields
             user_data = {
                 "userID": userID,
                 "userName": userName,
@@ -167,10 +189,14 @@ def add_user_data(request):
                 "userRole": userRole,
                 "department": department,
                 "password": hashed_password.decode("utf-8"), 
+                "created_at": current_date,  # Adding created_at
+                "created_time": current_time,  # Adding created_time
             }
 
+            # Insert data into MongoDB
             insert_result = coll_user.insert_one(user_data)
 
+            # Check if the insertion was successful
             if insert_result.inserted_id:
                 return JsonResponse({"success": True, "message": "User added successfully!"})
             else:
@@ -182,11 +208,67 @@ def add_user_data(request):
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
 
+def user_list(request):
+    """
+    Fetch the list of users from the 'coll_add_user' collection in the 'CRM_Tickit_Management_System' database.
+    """
+    # Connect to MongoDB
+    client = MongoClient("mongodb://localhost:27017/")
+    db = client["CRM_Tickit_Management_System"]
+    coll_user = db["coll_add_user"]
+
+    # Fetch all users from the 'coll_add_user' collection
+    users_cursor = coll_user.find()
+
+    user_list = []
+    for user in users_cursor:
+        # Get created_at, which is stored as a string in the 'YYYY-MM-DD' format
+        user_created_at_str = user.get('created_at')
+
+        # Convert the string to a datetime object
+        try:
+            user_created_at = datetime.strptime(user_created_at_str, '%Y-%m-%d')  # ✅ Correct usage
+            # Format the date as 'DD MMM YYYY'
+            user_created_at = user_created_at.strftime('%d %b %Y')
+        except (ValueError, TypeError):
+            user_created_at = None  # Handle errors gracefully
+
+        # Prepare user data
+        user_data = {
+            '_id': str(user.get('_id')),  # Convert ObjectId to string
+            'userID': user.get('userID'),
+            'userName': user.get('userName'),
+            'email': user.get('email'),
+            'mobileNo': user.get('mobileNo'),
+            'userRole': user.get('userRole'),
+            'department': user.get('department'),
+            'created_at': user_created_at  # Formatted date
+        }
+        user_list.append(user_data)
+        print("Response of the user List in list format ----------->", user_list)
+        
+
+    return user_list
+
+def view_users(request):
+    # Fetch User List
+    ListUser = user_list(request)  # Pass request properly
+    print("List user variable List:", ListUser)
+
+    formatted_users = []
+    for user in ListUser:
+        new_user = {
+            key: (str(value) if isinstance(value, ObjectId) else value)  # Convert ObjectID to String
+            for key, value in user.items()
+        }
+        formatted_users.append(new_user)
+        print("List of formatted Users --------------------------------->", formatted_users)
+
+    return render(request, 'home/view-user.html', {'ListUser': formatted_users})
 
 # Dashboard View Function
 def add_user_view(request):
     return render(request, 'home/add-user.html')
-
 
 def transactions_view(request):
     return render(request, 'home/transactions.html')

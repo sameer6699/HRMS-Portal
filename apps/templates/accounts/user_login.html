@@ -4,11 +4,11 @@
 
 {% block content %}
 <main>
-    <section class="vh-lg-100 mt-5 mt-lg-0 bg-soft d-flex align-items-center">
+    <section class="vh-lg-100 mt-5 mb-5 mt-lg-0 mb-lg-5 bg-soft d-flex align-items-center">
         <div class="container">
             <p class="text-center">HelpDesk Management Portal</p>
             <div class="col-12 d-flex align-items-center justify-content-center">
-                <div class="bg-white shadow border-0 rounded border-light p-4 p-lg-5 w-100 fmxw-500">
+                <div class="bg-white shadow border-0 rounded border-light p-5 w-100 fmxw-500">
                     <div class="text-center text-md-center mb-4 mt-md-0">
                         <h1 class="mb-0 h3">Helpdesk Portal Sign IN</h1>
                         <br/>
@@ -20,7 +20,25 @@
                     </div>
                     <form method="post" action="" class="mt-4">
                         {% csrf_token %}
-                        <!-- Username Field -->
+                        <!-- User Role Field -->
+                        <div class="form-group mb-4">
+                            <label for="userRole">User Role</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <span class="fas fa-user-shield"></span> <!-- Icon for User Role -->
+                                </span>
+                                <select class="form-control" id="userRole" name="userRole" required>
+                                    <option value="" disabled selected>Select User Role</option>
+                                    <option value="Admin">Admin</option>
+                                    <option value="User">Support Agent</option>
+                                    <option value="User">Supervisor</option>
+                                    <option value="User">User</option>
+                                    <option value="User">Quality Assurance</option>
+                                    <option value="User">Accounts</option>
+                                </select>
+                            </div>  
+                        </div>
+                        <!-- User Name Field -->
                         <div class="form-group mb-4">
                             <label for="username">Username</label>
                             <div class="input-group">
@@ -30,7 +48,7 @@
                                 <input type="text" class="form-control" id="username" name="username" required>
                             </div>  
                         </div>
-                        <!-- Password Field -->
+                        <!-- User Password Field -->
                         <div class="form-group mb-4">
                             <label for="password">Your Password</label>
                             <div class="input-group">
@@ -55,15 +73,11 @@
                             <button type="submit" name="login" class="btn btn-gray-800">Sign IN</button>
                         </div>
                     </form>
+                    
                     <br />
-                    <!-- <div class="d-flex justify-content-center align-items-center mt-4">
-                        <span class="fw-normal">
-                            Not registered? <a href="{% url 'register' %}" class="fw-bold">Create account</a>
-                        </span>
-                    </div> -->
                     <div class="d-flex justify-content-center align-items-center mt-4">
                         <span class="fw-normal">
-                            <a href="{% url 'reset_password' %}" class="fw-bold">Reset Password</a>
+                             Forgot password ?<a href="{% url 'reset_password' %}" class="fw-bold"> Reset Password</a>
                         </span>
                     </div>
                 </div>

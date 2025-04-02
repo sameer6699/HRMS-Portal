@@ -2,7 +2,20 @@
 
 {% block title %} UI Forms {% endblock %} 
 
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+    <style>
+        .swal2-confirm.swal2-styled {
+            background-color: #FBA918 !important;
+            border-color: #FBA918 !important;     
+            color: white !important;               
+        }
+        .swal2-confirm.swal2-styled:hover {
+            background-color: #FBA918;  
+            border-color: #FBA918;      
+            opacity: 0.9; 
+        }
+    </style>
+{% endblock %}
 
 {% block content %}
   <div class="py-4">
@@ -74,8 +87,11 @@
                         <select class="form-select" id="userRole" name="userRole" required>
                             <option value="" selected disabled>Select Role</option>
                             <option value="Admin">Admin</option>
+                            <option value="User">Support Agent</option>
+                            <option value="User">Supervisor</option>
                             <option value="User">User</option>
-                            <option value="Supervisor">Supervisor</option>
+                            <option value="User">Quality Assurance</option>
+                            <option value="User">Accounts</option>
                         </select>
                         <div class="invalid-feedback" id="userRoleFeedback">Please select a role.</div>
                     </div>
@@ -154,7 +170,6 @@
         }
     }
 
-    // ✅ Generate User ID Automatically
     function generateUserID() {
         let today = new Date();
         let day = String(today.getDate()).padStart(2, '0');
@@ -167,7 +182,6 @@
 
     window.onload = generateUserID;
 
-    // ✅ Validate Username
     document.addEventListener("DOMContentLoaded", function () {
         const userNameInput = document.getElementById("userName");
         const userNameFeedback = document.getElementById("userNameFeedback");
@@ -187,7 +201,6 @@
         });
     });
 
-    // ✅ Validate Email
     document.addEventListener("DOMContentLoaded", function () {
         const emailInput = document.getElementById("email");
         const emailFeedback = document.getElementById("emailFeedback");
@@ -215,7 +228,7 @@
         }
     });
 
-    // ✅ Validate Mobile Number
+
     document.addEventListener("DOMContentLoaded", function () {
         const mobileNoInput = document.getElementById("mobileNo");
         const mobileNoFeedback = document.getElementById("mobileNoFeedback");
@@ -242,7 +255,7 @@
         }
     });
 
-    // ✅ Validate Select Fields (User Role & Department)
+
     document.addEventListener("DOMContentLoaded", function () {
         const userRoleInput = document.getElementById("userRole");
         const departmentInput = document.getElementById("department");
@@ -267,7 +280,6 @@
         }
     });
 
-    // ✅ Validate Password & Confirm Password
     document.addEventListener("DOMContentLoaded", function () {
         const passwordInput = document.getElementById("password");
         const confirmPasswordInput = document.getElementById("confirmPassword");
@@ -298,7 +310,6 @@
         }
     });
 
-    // ✅ Form Submission with SweetAlert2
     document.getElementById("addUserForm").addEventListener("submit", function (event) {
         event.preventDefault();
 

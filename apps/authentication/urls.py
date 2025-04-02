@@ -9,7 +9,8 @@ from django.contrib.auth.views import LogoutView
 
 urlpatterns = [
     path('', landing_page, name="home"),  # Default landing Page Route
-    path('login/', login_view, name="login"),
+    path('login/', login_view, name="login"), # Admin Login Page Route
+    path('user_login/', user_login, name='user_login'), # User Login Page Route
     path('register/', register_user, name="register"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path('forgot-password/', forgot_password_view, name='forgot_password'), # URL Route for Fprgot Password Page.
@@ -24,11 +25,15 @@ urlpatterns = [
     # Main Dashboard Route
     path('helpdesk_dashbaord/', help_desk_portal, name='helpdesk_portal'),
     path('dashboard/', dashboard_view, name='dashboard'),
+    path('view-users/', view_users, name='view_users'),  # View User Url  
 
 
     # URL Routes of Main Dashboard Page.
     path('add-user/', add_user_view, name='add_user'),
-    path("add-user-data/", add_user_data, name="add_user-data"),    # Ajax Url To Add User into MongoDB Database.
+    path("add-user-data/", add_user_data, name="add_user-data"),   # Ajax Url To Add User into MongoDB Database.
+
+    # URL Route to dispaly the User List in Table 
+    path("users/", user_list, name="user_list"),
 
     # Side Bar Component routes
     path('transactions/', transactions_view, name='transactions'),
