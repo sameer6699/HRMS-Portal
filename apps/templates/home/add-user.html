@@ -1,160 +1,243 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} UI Forms {% endblock %} 
-
+{% block title %} UI Forms {% endblock %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 {% block stylesheets %}
-    <style>
-        .swal2-confirm.swal2-styled {
-            background-color: #FBA918 !important;
-            border-color: #FBA918 !important;     
-            color: white !important;               
-        }
-        .swal2-confirm.swal2-styled:hover {
-            background-color: #FBA918;  
-            border-color: #FBA918;      
-            opacity: 0.9; 
-        }
-    </style>
+<style>
+    .swal2-confirm.swal2-styled {
+        background-color: #FBA918 !important;
+        border-color: #FBA918 !important;
+        color: white !important;
+    }
+
+    .swal2-confirm.swal2-styled:hover {
+        background-color: #FBA918;
+        border-color: #FBA918;
+        opacity: 0.9;
+    }
+
+    .badge-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 10px;
+    }
+
+    .role-badge {
+        background-color: #007bff;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+    }
+
+    .role-badge button {
+        background: none;
+        border: none;
+        color: white;
+        font-weight: bold;
+        margin-left: 8px;
+        cursor: pointer;
+    }
+    .vscomp-ele{
+        max-width: 100% !important;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-  <div class="py-4">
-      <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
-          <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
-              <li class="breadcrumb-item">
+<div class="py-4">
+    <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+        <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+            <li class="breadcrumb-item">
                 <a href="#">
                     <i class="fas fa-home icon-xxs" style="color: currentColor;"></i>
-                </a>                
-              </li>
-              <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
-              <li class="breadcrumb-item active" aria-current="page">Add User</li>
-          </ol>
-      </nav>
-      <div class="d-flex justify-content-between w-100 flex-wrap">
+                </a>
+            </li>
+            <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Add User</li>
+        </ol>
+    </nav>
+    <div class="d-flex justify-content-between w-100 flex-wrap">
         <div class="mb-3 mb-lg-0">
             <h1 class="h4">Add User</h1>
             <p class="mb-0">Here, you can easily add new users to the system.</p>
-        </div>        
+        </div>
         <div>
             <a href="#" class="btn btn-outline-gray">
                 <i class="far fa-question-circle me-1"></i> More Information
             </a>
         </div>
-      </div>
-  </div>
-<!-----------------  Start of the Form Section  --------------------------------------->
-  <div class="row">
-      <div class="col-12 mb-4">
-          <div class="card border-0 shadow components-section">
-              <div class="card-body">
-                <h4 class="card-title mb-4"> Add New User</h4> 
-                <form id="addUserForm" onsubmit=" return validatePassword()"  method="POST"> 
-                    {% csrf_token %}
-                <div class="row">
-                    <!-- user ID Readonly Mode -->
-                    <div class="col-lg-6 col-md-12 mb-4">
-                        <label for="userID">User ID</label>
-                        <input type="text" class="form-control" id="userID" name="userID" readonly>
-                    </div>
-                    <!-- User Name -->
-                    <div class="col-lg-6 col-md-12 mb-4">
-                        <label for="userName">User Name</label>
-                        <input type="text" class="form-control" id="userName" name="userName" placeholder="Enter User Name" required>
-                        <div class="invalid-feedback" id="userNameFeedback">User Name is required and can only contain letters, numbers, underscores, or hyphens.</div>
-                    </div>
-                </div>
-                <!------------------------------- Second Row Component  --------------------------------->
-                <div class="row">
-                    <!-- Email -->
-                    <div class="col-lg-6 col-md-12 mb-4">
-                        <label for="email">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email" required>
-                        <div class="invalid-feedback" id="emailFeedback">Please enter a valid email address.</div>
-                    </div>
-                    
-                    <!-- Mobile Number -->
-                    <div class="col-lg-6 col-md-12 mb-4">
-                        <label for="mobileNo">Mobile Number</label>
-                        <input type="tel" class="form-control" id="mobileNo" name="mobileNo" placeholder="Enter Mobile Number" required>
-                        <div class="invalid-feedback" id="mobileNoFeedback">Please enter a valid 10-digit mobile number.</div>
-                    </div>
-                </div>
-                <!------------------------------------------------------- Third Row Component  --------------------------------->
-                <div class="row">
-                    <!-- User Role -->
-                    <div class="col-lg-6 col-md-12 mb-4">
-                        <label for="userRole">User Role</label>
-                        <select class="form-select" id="userRole" name="userRole" required>
-                            <option value="" selected disabled>Select Role</option>
-                            <option value="Admin">Admin</option>
-                            <option value="User">Support Agent</option>
-                            <option value="User">Supervisor</option>
-                            <option value="User">User</option>
-                            <option value="User">Quality Assurance</option>
-                            <option value="User">Accounts</option>
-                        </select>
-                        <div class="invalid-feedback" id="userRoleFeedback">Please select a role.</div>
-                    </div>
-
-                    <!-- Department -->
-                    <div class="col-lg-6 col-md-12 mb-4">
-                        <label for="department">Department</label>
-                        <select class="form-select" id="department" name="department" required>
-                            <option value="" selected disabled>Select Department</option>
-                            <option value="Tester">Tester</option>
-                            <option value="Developer">Developer</option>
-                            <option value="Support">Support</option>
-                        </select>
-                        <div class="invalid-feedback" id="departmentFeedback">Please select a department.</div>
-                    </div>
-                </div>
-                <!------------------------------------------------------- Fourth Row Component  --------------------------------->
-                <div class="row">
-                    <!-- Password -->
-                    <div class="col-lg-6 col-md-12 mb-4 position-relative">
-                        <label for="password">Password</label>
-                        <div class="input-group">
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
-                            <span class="input-group-text" onclick="togglePassword('password', 'toggleIcon1')" style="cursor: pointer;">
-                                <i class="fa fa-eye" id="toggleIcon1"></i>
-                            </span>
+    </div>
+</div>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <div class="card border-0 shadow components-section">
+                <div class="card-body">
+                    <h4 class="card-title mb-4"> Add New User</h4>
+                    <form id="addUserForm" onsubmit=" return validatePassword()" method="POST">
+                        {% csrf_token %}
+                        <div class="row">
+                            <!-- user ID Readonly Mode -->
+                            <div class="col-lg-6 col-md-12 mb-4">
+                                <label for="userID">User ID</label>
+                                <input type="text" class="form-control" id="userID" name="userID" readonly>
+                            </div>
+                            <!-- User Name -->
+                            <div class="col-lg-6 col-md-12 mb-4">
+                                <label for="userName">User Name</label>
+                                <input type="text" class="form-control" id="userName" name="userName"
+                                    placeholder="Enter User Name" required>
+                                <div class="invalid-feedback" id="userNameFeedback">User Name is required and can only
+                                    contain letters, numbers, underscores, or hyphens.</div>
+                            </div>
                         </div>
-                        <div class="invalid-feedback" id="passwordFeedback">Password must be at least 6 characters long, containing letters, numbers, and special characters.</div>
-                    </div>
-                    <!-- Confirm Password -->
-                    <div class="col-lg-6 col-md-12 mb-4 position-relative">
-                        <label for="confirmPassword">Confirm Password</label>
-                        <div class="input-group">
-                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" required>
-                            <span class="input-group-text" onclick="togglePassword('confirmPassword', 'toggleIcon2')" style="cursor: pointer;">
-                                <i class="fa fa-eye" id="toggleIcon2"></i>
-                            </span>
+                        <div class="row">
+                            <!-- Email -->
+                            <div class="col-lg-6 col-md-12 mb-4">
+                                <label for="email">Email</label>
+                                <input type="email" class="form-control" id="email" name="email"
+                                    placeholder="Enter Email" required>
+                                <div class="invalid-feedback" id="emailFeedback">Please enter a valid email address.
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-12 mb-4">
+                                <label for="mobileNo">Mobile Number</label>
+                                <input type="tel" class="form-control" id="mobileNo" name="mobileNo"
+                                    placeholder="Enter Mobile Number" required>
+                                <div class="invalid-feedback" id="mobileNoFeedback">Please enter a valid 10-digit mobile
+                                    number.</div>
+                            </div>
                         </div>
-                        <div class="invalid-feedback" id="confirmPasswordFeedback">Passwords do not match.</div>
-                    </div>
+                        <div class="row">
+                            <!-- User Role -->
+                            <div class="col-lg-6 col-md-12 mb-4">
+                                <label for="userRole">User Role</label> <br>
+                                <select class="w-100 multipleSelect" id="userRole1" name="role" multiple>
+                                    <option value="Admin">Admin</option>
+                                    <option value="Support Agent">Support Agent</option>
+                                    <option value="Supervisor">Supervisor</option>
+                                    <option value="User">User</option>
+                                    <option value="Quality Assurance">Quality Assurance</option>
+                                    <option value="Accounts">Accounts</option>
+                                </select>
+                                <div class="invalid-feedback" id="userRoleFeedback">Please select at least one role.
+                                </div>
+                            </div>
+                            <!-- Department -->
+                            <div class="col-lg-6 col-md-12 mb-4">
+                                <label for="department">Department</label>
+                                <select class="form-select" id="department" name="department" required>
+                                    <option value="" selected disabled>Select Department</option>
+                                    <option value="Tester">Tester</option>
+                                    <option value="Developer">Developer</option>
+                                    <option value="Support">Support</option>
+                                </select>
+                                <div class="invalid-feedback" id="departmentFeedback">Please select a department.</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <!-- Password -->
+                            <div class="col-lg-6 col-md-12 mb-4 position-relative">
+                                <label for="password">Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="password" name="password"
+                                        placeholder="Enter password" required>
+                                    <span class="input-group-text" onclick="togglePassword('password', 'toggleIcon1')"
+                                        style="cursor: pointer;">
+                                        <i class="fa fa-eye" id="toggleIcon1"></i>
+                                    </span>
+                                </div>
+                                <div class="invalid-feedback" id="passwordFeedback">Password must be at least 6
+                                    characters long, containing letters, numbers, and special characters.</div>
+                            </div>
+                            <!-- Confirm Password -->
+                            <div class="col-lg-6 col-md-12 mb-4 position-relative">
+                                <label for="confirmPassword">Confirm Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="confirmPassword"
+                                        name="confirmPassword" placeholder="Confirm password" required>
+                                    <span class="input-group-text"
+                                        onclick="togglePassword('confirmPassword', 'toggleIcon2')"
+                                        style="cursor: pointer;">
+                                        <i class="fa fa-eye" id="toggleIcon2"></i>
+                                    </span>
+                                </div>
+                                <div class="invalid-feedback" id="confirmPasswordFeedback">Passwords do not match.</div>
+                            </div>
+                        </div>
+                        <!------------------------------------------------------- Fifth Row Component Button  --------------------------------->
+                        <div class="row">
+                            <!-- Submit Button -->
+                            <div class="col-12 text-center">
+                                <button type="submit" class="btn btn-primary">Add User</button>
+                            </div>
+                        </div>
                 </div>
-                <!------------------------------------------------------- Fifth Row Component Button  --------------------------------->
-                <div class="row">
-                    <!-- Submit Button -->
-                    <div class="col-12 text-center">
-                        <button type="submit" class="btn btn-primary">Add User</button>
-                    </div>
-                </div>
-                <!------------------------------------------------------- End of The Form -------------------------------------------------->
-              </div>
-            </form>
-          </div>
-      </div>
-  </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock content %}
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>  <!-- jQuery -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script> <!-- Bootstrap Bundle -->
+<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Bootstrap Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 -->
 
 <script>
-    // ✅ Toggle Password Visibility
+    document.addEventListener("DOMContentLoaded", function () {
+        const userRoleSelect = document.getElementById("userRole");
+        const selectedRolesContainer = document.getElementById("selectedRoles");
+
+        let selectedRoles = [];
+
+        userRoleSelect.addEventListener("change", function () {
+            let selectedOptions = Array.from(userRoleSelect.selectedOptions).map(option => option.value);
+
+            selectedOptions.forEach(role => {
+                if (!selectedRoles.includes(role)) {
+                    selectedRoles.push(role);
+                }
+            });
+
+            updateSelectedRoles();
+        });
+
+        function updateSelectedRoles() {
+            selectedRolesContainer.innerHTML = "";
+
+            selectedRoles.forEach(role => {
+                const badge = document.createElement("span");
+                badge.classList.add("role-badge", "badge", "bg-primary");
+                badge.innerHTML = `${role} <button type="button" onclick="removeRole('${role}')">&times;</button>`;
+
+                selectedRolesContainer.appendChild(badge);
+            });
+
+            updateSelectTag();
+        }
+
+        function updateSelectTag() {
+            for (let i = 0; i < userRoleSelect.options.length; i++) {
+                if (selectedRoles.includes(userRoleSelect.options[i].value)) {
+                    userRoleSelect.options[i].selected = true;
+                } else {
+                    userRoleSelect.options[i].selected = false;
+                }
+            }
+        }
+
+        window.removeRole = function (role) {
+            selectedRoles = selectedRoles.filter(r => r !== role);
+            updateSelectedRoles();
+        };
+    });
+
     function togglePassword(inputId, iconId) {
         let passwordInput = document.getElementById(inputId);
         let icon = document.getElementById(iconId);
@@ -228,7 +311,6 @@
         }
     });
 
-
     document.addEventListener("DOMContentLoaded", function () {
         const mobileNoInput = document.getElementById("mobileNo");
         const mobileNoFeedback = document.getElementById("mobileNoFeedback");
@@ -254,7 +336,6 @@
             }
         }
     });
-
 
     document.addEventListener("DOMContentLoaded", function () {
         const userRoleInput = document.getElementById("userRole");
@@ -322,23 +403,76 @@
             return;
         }
 
-        let formData = new FormData(this);
+        var formData = new FormData(this);
         let csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+        let selectedRoles = [];
+        let userRoleSelect = document.getElementById("userRole");
+
+        if (userRoleSelect) {
+            let options = userRoleSelect.options;
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].selected) {
+                    selectedRoles.push(options[i].value);
+                }
+            }
+        }
+        
+        formData.append("userRoles",$('#userRole1').val());
 
         fetch("/add-user-data/", {
             method: "POST",
             body: formData,
             headers: { "X-CSRFToken": csrfToken }
         })
-        .then(response => response.json())
-        .then(data => {
-            Swal.fire({
-                icon: data.success ? "success" : "error",
-                title: data.success ? "Success!" : "Error!",
-                text: data.message,
-            }).then(() => { if (data.success) location.reload(); });
-        })
-        .catch(() => Swal.fire({ icon: "error", title: "Server Error!", text: "Something went wrong." }));
+            .then(response => response.json())
+            .then(data => {
+                Swal.fire({
+                    icon: data.success ? "success" : "error",
+                    title: data.success ? "Success!" : "Error!",
+                    text: data.message,
+                }).then(() => { if (data.success) location.reload(); });
+            })
+            .catch(() => Swal.fire({ icon: "error", title: "Server Error!", text: "Something went wrong." }));
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const userRoleSelect = document.getElementById("userRole");
+        const selectedRolesContainer = document.getElementById("selectedRoles");
+        let selectedRoles = [];
+
+        userRoleSelect.addEventListener("change", function () {
+            const selectedRole = userRoleSelect.value;
+            if (selectedRole && !selectedRoles.includes(selectedRole)) {
+                selectedRoles.push(selectedRole);
+                displayRoles();
+            }
+            userRoleSelect.value = "";
+        });
+
+        function displayRoles() {
+            selectedRolesContainer.innerHTML = "";
+            selectedRoles.forEach((role, index) => {
+                const badge = document.createElement("span");
+                badge.className = "role-badge badge bg-primary";
+                badge.innerHTML = `${role} <button type="button" onclick="removeRole(${index})">&times;</button>`;
+                selectedRolesContainer.appendChild(badge);
+            });
+        }
+
+        window.removeRole = function (index) {
+            selectedRoles.splice(index, 1);
+            displayRoles();
+        };
+    });
+
+</script>
+<script>
+    $(document).ready(function () {
+             
+        VirtualSelect.init({
+            ele: '.multipleSelect',
+        });
+
+    })
 </script>
 {% endblock javascripts %}

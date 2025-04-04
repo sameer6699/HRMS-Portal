@@ -1,0 +1,158 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} UI Forms {% endblock %}
+
+{% block stylesheets %}
+<!-- You can include additional stylesheets here -->
+{% endblock %}
+
+{% block content %}
+  <div class="py-4">
+      <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+          <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+              <li class="breadcrumb-item">
+                <a href="#">
+                    <i class="fas fa-home icon-xxs" style="color: currentColor;"></i>
+                </a>                
+              </li>
+              <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Add User Role</li>
+          </ol>
+      </nav>
+      <div class="d-flex justify-content-between w-100 flex-wrap">
+        <div class="mb-3 mb-lg-0">
+            <h1 class="h4">Add New User Role</h1>
+            <p class="mb-0">Here, you can easily add new user roles to the system.</p>
+        </div>        
+        <div>
+            <a href="#" class="btn btn-outline-gray">
+                <i class="far fa-question-circle me-1"></i> More Information
+            </a>
+        </div>
+      </div>
+  </div>
+
+<!-----------------  Start of the Form Section  --------------------------------------->
+  <div class="row">
+      <div class="col-12 mb-4">
+          <div class="card border-0 shadow components-section">
+              <div class="card-body">
+                <h4 class="card-title mb-4"> Add New User Role</h4> 
+                <form method="POST" id="addRoleForm">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-lg-6 col-md-12 mb-4">
+                            <label for="userID">Role ID</label>
+                            <input type="text" class="form-control" id="userID" name="userID" readonly>
+                        </div>
+                        <div class="col-lg-6 col-md-12 mb-4">
+                            <label for="department">User Role</label>
+                            <input list="departments" class="form-control" id="department" name="department" required placeholder="Select or type a department">
+                            <datalist id="departments"></datalist>
+                            <span id="invalidRoleMessage" style="color: red; font-size: 14px; display: none;">Only letters, hyphens (-), and underscores (_) are allowed!</span>
+                            <div class="invalid-feedback" id="departmentFeedback">Please select or enter a department.</div>
+                        </div>
+                    </div>
+                    <div class="row"></div>
+                    <div class="row">
+                        <!-- Submit Button -->
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-primary" id="submitUserRole">Add User Role</button>
+                        </div>
+                    </div>
+                </form>
+              </div>
+          </div>
+      </div>
+  </div>
+
+{% endblock content %}
+
+{% block javascripts %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+
+    function generateRoleID() {
+        let today = new Date();
+        let day = String(today.getDate()).padStart(2, '0'); 
+        let month = String(today.getMonth() + 1).padStart(2, '0'); 
+        let randomNum = Math.floor(100 + Math.random() * 900); 
+        
+        let roleID = `ROL-${day}${month}${randomNum}`;
+        document.getElementById("userID").value = roleID; 
+    }
+    window.onload = generateRoleID;
+
+    function capitalizeWords(input) {
+        return input.replace(/\b\w/g, char => char.toUpperCase()); 
+    }
+
+    document.getElementById("department").addEventListener("blur", function() {
+        this.value = capitalizeWords(this.value.trim());
+    });
+
+    document.getElementById("department").addEventListener("input", function() {
+        this.value = capitalizeWords(this.value);
+    });
+
+    $(document).ready(function(){
+        $("#addRoleForm").on("submit", function(event){
+            event.preventDefault(); 
+
+            let roleID = $("#userID").val();
+            let department = $("#department").val();
+            let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+
+            if(roleID === "" || department === "") {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please fill all fields!',
+                });
+                return;
+            }
+            $.ajax({
+                type: "POST",
+                url: "{% url 'add_user_role' %}", 
+                data: {
+                    'userID': roleID,
+                    'department': department,
+                    'csrfmiddlewaretoken': csrfToken
+                },
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: response.message,
+                    }).then(function() {
+                        generateRoleID(); 
+                        $("#department").val(""); 
+                    });
+                },
+                error: function(xhr) {
+                    let response = JSON.parse(xhr.responseText);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message, 
+                    });
+                }
+            });
+        });
+    });
+    $(document).ready(function () {
+        $("#department").on("input", function () {
+            let inputVal = $(this).val();
+            let regex = /^[A-Za-z-_ ]*$/; 
+            if (!regex.test(inputVal)) {
+                $("#invalidRoleMessage").show();
+                $(this).val(inputVal.replace(/[^A-Za-z-_ ]/g, "")); 
+            } else {
+                $("#invalidRoleMessage").hide();
+            }
+        });
+    });
+</script>
+{% endblock javascripts %}

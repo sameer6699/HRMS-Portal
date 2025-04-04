@@ -25,8 +25,8 @@ urlpatterns = [
     # Main Dashboard Route
     path('helpdesk_dashbaord/', help_desk_portal, name='helpdesk_portal'),
     path('dashboard/', dashboard_view, name='dashboard'),
-    path('view-users/', view_users, name='view_users'),  # View User Url  
-
+    path('view-users/', view_users, name='view_users'),  # View User Url
+    path('add-user-role/', add_user_role, name='add_user_role'),
 
     # URL Routes of Main Dashboard Page.
     path('add-user/', add_user_view, name='add_user'),
@@ -34,6 +34,10 @@ urlpatterns = [
 
     # URL Route to dispaly the User List in Table 
     path("users/", user_list, name="user_list"),
+    path("edit-user/<str:id>/", edit_user, name="edit_user"),
+
+    # URL Route to Fetch Ticket Data.
+    path("fetch-tickets/", fetch_tickets_view, name="fetch_tickets"),
 
     # Side Bar Component routes
     path('transactions/', transactions_view, name='transactions'),

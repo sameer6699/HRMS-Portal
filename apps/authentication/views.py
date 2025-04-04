@@ -3,9 +3,11 @@ import json
 from typing import Collection
 import bcrypt
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import *
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 import pymongo
 from pymongo import MongoClient
 from bson import ObjectId
@@ -15,7 +17,11 @@ from dotenv import load_dotenv
 from datetime import datetime 
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 import os
+import imaplib
+import email
+from email.header import decode_header
 
 # user Name :- Sameer_Jadhav
 # Password :- sameer@6699
@@ -36,8 +42,6 @@ user_collection = db['coll_register_user']
 
 # Landing Page Redirection
 def landing_page(request):
-    # Checking the Connection is established Properly or not
-    # This is just a print statement to check the connection
     print(f"MongoDB URI: {MONGO_URI}")
     print(f"MongoDB DB Name: {MONGO_DB_NAME}")
     print(f"MongoDB User: {MONGODB_USER}")
@@ -53,29 +57,23 @@ def login_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
-
-        # Check if the username exists in the database
         user = user_collection.find_one({"username": username})
 
         if user:
-            # Retrieve hashed password from the database
             hashed_password = user["password"].encode('utf-8')
 
-            # Verify entered password with stored hashed password
             if bcrypt.checkpw(password.encode('utf-8'), hashed_password):
-                # Authentication successful - Redirect to home page
-                request.session["user_id"] = str(user["_id"])  # Store user session
+                request.session["user_id"] = str(user["_id"]) 
                 print(f"User ID: {request.session['user_id']}")
                 request.session["username"] = user["username"]
                 print(f"Username: {request.session['username']}")
-                return redirect("helpdesk_portal")  # Redirect to dashboard or home page
+                return redirect("helpdesk_portal") 
             else:
                 msg = "Invalid credentials. Please try again."
         else:
             msg = "User does not exist. Please register first."
 
     return render(request, "accounts/login.html", {"msg": msg})
-
 
 def logout_view(request):
     print("Logout function called")
@@ -138,8 +136,6 @@ def help_desk_portal(request):
 def dashboard_view(request):
     return render(request, 'home/dashboard.html')
 
-
-# Function to add user data into MongoDB
 def add_user_data(request):
     if request.method == "POST":
         try:
@@ -156,22 +152,21 @@ def add_user_data(request):
             userName = request.POST.get("userName")
             email = request.POST.get("email")
             mobileNo = request.POST.get("mobileNo")
-            userRole = request.POST.get("userRole")
+            userRoles = request.POST.get("userRoles")  # Get the roles from the form
             department = request.POST.get("department")
             password = request.POST.get("password")  
 
             # Validate data
-            if not all([userID, userName, email, mobileNo, userRole, department, password]):
+            if not all([userID, userName, email, mobileNo, userRoles, department, password]):
                 return JsonResponse({"success": False, "message": "All fields are required."}, status=400)
 
-            # Check if the userName or email already exist in the database
+            # Check if the userName or email already exists in the database
             existing_user = coll_user.find_one({"$or": [{"userName": userName}, {"email": email}]})
-            
             if existing_user:
                 if existing_user.get("userName") == userName:
-                    return JsonResponse({"success": False, "message": "User Name is already taken use different user name."}, status=400)
+                    return JsonResponse({"success": False, "message": "User Name is already taken. Please choose a different user name."}, status=400)
                 if existing_user.get("email") == email:
-                    return JsonResponse({"success": False, "message": "Email is already in use use different email."}, status=400)
+                    return JsonResponse({"success": False, "message": "Email is already in use. Please choose a different email."}, status=400)
 
             # Hash the password
             hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
@@ -180,13 +175,12 @@ def add_user_data(request):
             current_date = datetime.now().strftime('%Y-%m-%d')  # Current date in YYYY-MM-DD format
             current_time = datetime.now().strftime('%H:%M:%S')  # Current time in HH:MM:SS format
 
-            # User data including the new fields
             user_data = {
                 "userID": userID,
                 "userName": userName,
                 "email": email,
                 "mobileNo": mobileNo,
-                "userRole": userRole,
+                "userRole": userRoles,  # Store multiple roles as a list
                 "department": department,
                 "password": hashed_password.decode("utf-8"), 
                 "created_at": current_date,  # Adding created_at
@@ -208,63 +202,137 @@ def add_user_data(request):
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
 
-def user_list(request):
+# Function to Dispaly user List
+def user_list():
     """
     Fetch the list of users from the 'coll_add_user' collection in the 'CRM_Tickit_Management_System' database.
     """
-    # Connect to MongoDB
     client = MongoClient("mongodb://localhost:27017/")
     db = client["CRM_Tickit_Management_System"]
     coll_user = db["coll_add_user"]
 
-    # Fetch all users from the 'coll_add_user' collection
     users_cursor = coll_user.find()
 
     user_list = []
     for user in users_cursor:
-        # Get created_at, which is stored as a string in the 'YYYY-MM-DD' format
         user_created_at_str = user.get('created_at')
 
-        # Convert the string to a datetime object
         try:
-            user_created_at = datetime.strptime(user_created_at_str, '%Y-%m-%d')  # ✅ Correct usage
-            # Format the date as 'DD MMM YYYY'
-            user_created_at = user_created_at.strftime('%d %b %Y')
+            user_created_at = datetime.strptime(user_created_at_str, '%Y-%m-%d').strftime('%d %b %Y')
         except (ValueError, TypeError):
-            user_created_at = None  # Handle errors gracefully
+            user_created_at = None  
 
-        # Prepare user data
         user_data = {
-            '_id': str(user.get('_id')),  # Convert ObjectId to string
+            '_id': str(user.get('_id')),  
             'userID': user.get('userID'),
             'userName': user.get('userName'),
             'email': user.get('email'),
             'mobileNo': user.get('mobileNo'),
             'userRole': user.get('userRole'),
             'department': user.get('department'),
-            'created_at': user_created_at  # Formatted date
+            'created_at': user_created_at
         }
         user_list.append(user_data)
-        print("Response of the user List in list format ----------->", user_list)
-        
-
+    
     return user_list
 
 def view_users(request):
-    # Fetch User List
-    ListUser = user_list(request)  # Pass request properly
-    print("List user variable List:", ListUser)
+    ListUser = user_list()
 
     formatted_users = []
     for user in ListUser:
         new_user = {
-            key: (str(value) if isinstance(value, ObjectId) else value)  # Convert ObjectID to String
+            key: (str(value) if isinstance(value, ObjectId) else value)  
             for key, value in user.items()
         }
+         # Add user_id (the _id from MongoDB) as a separate key
+        new_user['user_id'] = new_user.get('_id')
+        
         formatted_users.append(new_user)
-        print("List of formatted Users --------------------------------->", formatted_users)
+        print("List of Formatted user",formatted_users)
 
-    return render(request, 'home/view-user.html', {'ListUser': formatted_users})
+    page = request.GET.get('page', 1)  
+    per_page = 10  
+    paginator = Paginator(formatted_users, per_page)
+
+    try:
+        users = paginator.page(page)
+    except PageNotAnInteger:
+        users = paginator.page(1)
+    except EmptyPage:
+        users = paginator.page(paginator.num_pages)
+
+    return render(request, 'home/view-user.html', {'ListUser': users})
+
+client = MongoClient('mongodb://localhost:27017')  
+db = client['CRM_Tickit_Management_System']  
+users_collection = db['coll_add_user']  
+
+def edit_user(request, id):
+
+    try:
+        object_id = ObjectId(id)
+    except Exception as e:
+        return render(request, 'error.html', {'error': f'Invalid ObjectId format: {str(e)}'})
+
+    # Query the MongoDB collection directly to find the user by _id
+    user = users_collection.find_one({'_id': object_id})
+
+    if user is None:
+        return render(request, 'error.html', {'error': 'User not found'})
+
+    # Return the user details to the edit page
+    return render(request, 'home/edit-user.html', {'user': user})
+
+def add_user_role(request):
+    if request.method == "POST":
+        try:
+    
+            client = MongoClient("mongodb://localhost:27017/")
+            db = client["CRM_Tickit_Management_System"]
+            role_collection = db["user_roles"]
+
+            role_id = request.POST.get('userID')
+            department = request.POST.get('department').title() 
+            user_roles = request.POST.getlist('userRoles')  
+
+            if role_id and department and user_roles:
+                # Ensure user_roles is an array
+                user_roles = [role.strip() for role in user_roles if role.strip()]  # Clean and filter any empty values
+
+                # Check if the department already exists in the database
+                existing_role = role_collection.find_one({"department": department})
+                if existing_role:
+                    client.close()
+                    return JsonResponse({"message": "Error: User Role already exists!"}, status=400)
+
+                # Get the current date and time
+                current_datetime = datetime.utcnow()
+                date_str = current_datetime.strftime("%d-%m-%Y")  # Date in DD-MM-YYYY format
+                time_str = current_datetime.strftime("%H:%M:%S")  # Time in HH:MM:SS format
+
+                role_data = {
+                    "role_id": role_id,
+                    "department": department,
+                    "user_roles": user_roles,  # Store roles as an array
+                    "role_creation_date": date_str,
+                    "role_creation_time": time_str,
+                    "role_created_at": current_datetime
+                }
+
+                role_collection.insert_one(role_data)
+                client.close()
+
+                return JsonResponse({"message": "User Role Added Successfully!"}, status=200)
+
+            else:
+                return JsonResponse({"message": "All fields are required."}, status=400)
+
+        except Exception as e:
+            return JsonResponse({"message": f"Error saving to database: {str(e)}"}, status=500)
+
+    return render(request, 'home/add-user-role.html')
+
 
 # Dashboard View Function
 def add_user_view(request):
@@ -305,3 +373,109 @@ def modals_view(request):
 
 def typography_view(request):
     return render(request, 'home/components-typography.html')
+
+
+
+client = MongoClient("mongodb://localhost:27017/")
+db = client["CRM_Tickit_Management_System"]
+ticket_collection = db["email_generated_tickets"]
+
+# Outlook Mail Credentials
+EMAIL_HOST = "imap-mail.outlook.com" 
+EMAIL_USER = "Sameer.Jadhav@thesilvertech.com"  
+EMAIL_PASS = "Sjadhav@#$123"  
+
+def fetch_support_emails():
+    """Fetch unread support emails and convert them into tickets."""
+    print("Starting to fetch emails...")
+    try:
+        # Connect to Outlook's IMAP server
+        print(f"Connecting to IMAP server: {EMAIL_HOST}")
+        mail = imaplib.IMAP4_SSL(EMAIL_HOST)
+        print(f"Logging in with email: {EMAIL_USER}")
+        mail.login(EMAIL_USER, EMAIL_PASS)
+        
+        # Select the inbox
+        print("Selecting the inbox...")
+        mail.select("inbox")
+        
+        # Search for all UNSEEN emails
+        print("Searching for UNSEEN emails...")
+        status, messages = mail.search(None, "UNSEEN")
+        print(f"Search status: {status}")
+        
+        if status != 'OK':
+            print("No unread emails found!")
+            return
+
+        mail_ids = messages[0].split()
+        print(f"Number of unread emails found: {len(mail_ids)}")
+
+        for mail_id in mail_ids:
+            print(f"Processing email ID: {mail_id}")
+            _, msg_data = mail.fetch(mail_id, "(RFC822)")
+            raw_email = msg_data[0][1]
+            msg = email.message_from_bytes(raw_email)
+            
+            # Decode subject
+            subject, encoding = decode_header(msg["Subject"])[0]
+            if isinstance(subject, bytes):
+                subject = subject.decode(encoding or "utf-8")
+            print(f"Decoded Subject: {subject}")
+
+            # Decode sender email
+            from_email = msg.get("From")
+            print(f"Sender Email: {from_email}")
+
+            # Get email content
+            if msg.is_multipart():
+                print("Email is multipart, extracting text/plain part...")
+                for part in msg.walk():
+                    content_type = part.get_content_type()
+                    if content_type == "text/plain":
+                        body = part.get_payload(decode=True).decode("utf-8", errors="ignore")
+                        print("Email body (text/plain):", body[:200])
+                        break
+            else:
+                body = msg.get_payload(decode=True).decode("utf-8", errors="ignore")
+                print("Email body:", body[:200])
+
+            # Generate Ticket ID
+            ticket_id = f"T{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            print(f"Generated Ticket ID: {ticket_id}")
+
+            # Prepare ticket data
+            ticket_data = {
+                "ticket_id": ticket_id,
+                "subject": subject,
+                "description": body,
+                "received_date": datetime.now().isoformat(),
+                "department": "Support",
+                "status": "Open",
+                "email": from_email,
+            }
+            
+            # Save to MongoDB
+            print(f"Inserting ticket data into MongoDB: {ticket_data}")
+            ticket_collection.insert_one(ticket_data)
+
+            # Mark email as seen
+            print(f"Marking email ID {mail_id} as read...")
+            mail.store(mail_id, "+FLAGS", "\\Seen")
+
+        print("Finished processing emails.")
+        mail.logout()
+
+    except Exception as e:
+        print("Error fetching emails:", str(e))
+
+# Call the function to test
+fetch_support_emails()
+
+""" API End Point to trigger email Fetching Function """
+@csrf_exempt
+def fetch_tickets_view(request):
+    if request.method == "POST":
+        fetch_support_emails()
+        return JsonResponse({"message": "Fetched latest tickets from email inbox"}, status=200)
+    return JsonResponse({"error": "Invalid request"}, status=400)

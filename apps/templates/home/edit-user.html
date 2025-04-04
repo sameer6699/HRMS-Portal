@@ -1,0 +1,344 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} UI Forms {% endblock %} 
+
+{% block stylesheets %}
+    <style>
+        .swal2-confirm.swal2-styled {
+            background-color: #FBA918 !important;
+            border-color: #FBA918 !important;     
+            color: white !important;               
+        }
+        .swal2-confirm.swal2-styled:hover {
+            background-color: #FBA918;  
+            border-color: #FBA918;      
+            opacity: 0.9; 
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+  <div class="py-4">
+      <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+          <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+              <li class="breadcrumb-item">
+                <a href="#">
+                    <i class="fas fa-home icon-xxs" style="color: currentColor;"></i>
+                </a>                
+              </li>
+              <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Add User</li>
+          </ol>
+      </nav>
+      <div class="d-flex justify-content-between w-100 flex-wrap">
+        <div class="mb-3 mb-lg-0">
+            <h1 class="h4">Add User</h1>
+            <p class="mb-0">Here, you can easily add new users to the system.</p>
+        </div>        
+        <div>
+            <a href="#" class="btn btn-outline-gray">
+                <i class="far fa-question-circle me-1"></i> More Information
+            </a>
+        </div>
+      </div>
+  </div>
+<!-----------------  Start of the Form Section  --------------------------------------->
+  <div class="row">
+      <div class="col-12 mb-4">
+          <div class="card border-0 shadow components-section">
+              <div class="card-body">
+                <h4 class="card-title mb-4"> Add New User</h4> 
+                <form id="addUserForm" onsubmit=" return validatePassword()"  method="POST"> 
+                    {% csrf_token %}
+                <div class="row">
+                    <!-- user ID Readonly Mode -->
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <label for="userID">User ID</label>
+                        <input type="text" class="form-control" id="userID" name="userID" readonly>
+                    </div>
+                    <!-- User Name -->
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <label for="userName">User Name</label>
+                        <input type="text" class="form-control" id="userName" name="userName" placeholder="Enter User Name" required>
+                        <div class="invalid-feedback" id="userNameFeedback">User Name is required and can only contain letters, numbers, underscores, or hyphens.</div>
+                    </div>
+                </div>
+                <!------------------------------- Second Row Component  --------------------------------->
+                <div class="row">
+                    <!-- Email -->
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email" required>
+                        <div class="invalid-feedback" id="emailFeedback">Please enter a valid email address.</div>
+                    </div>
+                    
+                    <!-- Mobile Number -->
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <label for="mobileNo">Mobile Number</label>
+                        <input type="tel" class="form-control" id="mobileNo" name="mobileNo" placeholder="Enter Mobile Number" required>
+                        <div class="invalid-feedback" id="mobileNoFeedback">Please enter a valid 10-digit mobile number.</div>
+                    </div>
+                </div>
+                <!------------------------------------------------------- Third Row Component  --------------------------------->
+                <div class="row">
+                    <!-- User Role -->
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <label for="userRole">User Role</label>
+                        <select class="form-select" id="userRole" name="userRole" required>
+                            <option value="" selected disabled>Select Role</option>
+                            <option value="Admin">Admin</option>
+                            <option value="User">Support Agent</option>
+                            <option value="User">Supervisor</option>
+                            <option value="User">User</option>
+                            <option value="User">Quality Assurance</option>
+                            <option value="User">Accounts</option>
+                        </select>
+                        <div class="invalid-feedback" id="userRoleFeedback">Please select a role.</div>
+                    </div>
+
+                    <!-- Department -->
+                    <div class="col-lg-6 col-md-12 mb-4">
+                        <label for="department">Department</label>
+                        <select class="form-select" id="department" name="department" required>
+                            <option value="" selected disabled>Select Department</option>
+                            <option value="Tester">Tester</option>
+                            <option value="Developer">Developer</option>
+                            <option value="Support">Support</option>
+                        </select>
+                        <div class="invalid-feedback" id="departmentFeedback">Please select a department.</div>
+                    </div>
+                </div>
+                <!------------------------------------------------------- Fourth Row Component  --------------------------------->
+                <div class="row">
+                    <!-- Password -->
+                    <div class="col-lg-6 col-md-12 mb-4 position-relative">
+                        <label for="password">Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
+                            <span class="input-group-text" onclick="togglePassword('password', 'toggleIcon1')" style="cursor: pointer;">
+                                <i class="fa fa-eye" id="toggleIcon1"></i>
+                            </span>
+                        </div>
+                        <div class="invalid-feedback" id="passwordFeedback">Password must be at least 6 characters long, containing letters, numbers, and special characters.</div>
+                    </div>
+                    <!-- Confirm Password -->
+                    <div class="col-lg-6 col-md-12 mb-4 position-relative">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" required>
+                            <span class="input-group-text" onclick="togglePassword('confirmPassword', 'toggleIcon2')" style="cursor: pointer;">
+                                <i class="fa fa-eye" id="toggleIcon2"></i>
+                            </span>
+                        </div>
+                        <div class="invalid-feedback" id="confirmPasswordFeedback">Passwords do not match.</div>
+                    </div>
+                </div>
+                <!------------------------------------------------------- Fifth Row Component Button  --------------------------------->
+                <div class="row">
+                    <!-- Submit Button -->
+                    <div class="col-12 text-center">
+                        <button type="submit" class="btn btn-primary">Add User</button>
+                    </div>
+                </div>
+                <!------------------------------------------------------- End of The Form -------------------------------------------------->
+              </div>
+            </form>
+          </div>
+      </div>
+  </div>
+{% endblock content %}
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>  <!-- jQuery -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script> <!-- Bootstrap Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 -->
+
+<script>
+    // ✅ Toggle Password Visibility
+    function togglePassword(inputId, iconId) {
+        let passwordInput = document.getElementById(inputId);
+        let icon = document.getElementById(iconId);
+
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            passwordInput.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+    }
+
+    function generateUserID() {
+        let today = new Date();
+        let day = String(today.getDate()).padStart(2, '0');
+        let month = String(today.getMonth() + 1).padStart(2, '0');
+        let randomNum = String(Math.floor(10 + Math.random() * 90));
+
+        let userID = `ICS${day}${month}${randomNum}`;
+        document.getElementById("userID").value = userID;
+    }
+
+    window.onload = generateUserID;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const userNameInput = document.getElementById("userName");
+        const userNameFeedback = document.getElementById("userNameFeedback");
+
+        userNameInput.addEventListener("input", function () {
+            const userNamePattern = /^[a-zA-Z0-9_-]+$/;
+            if (userNameInput.value.trim() === "") {
+                userNameInput.classList.add("is-invalid");
+                userNameFeedback.textContent = "User Name is required.";
+            } else if (!userNamePattern.test(userNameInput.value)) {
+                userNameInput.classList.add("is-invalid");
+                userNameFeedback.textContent = "User Name can only contain letters, numbers, underscores, or hyphens.";
+            } else {
+                userNameInput.classList.remove("is-invalid");
+                userNameInput.classList.add("is-valid");
+            }
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const emailInput = document.getElementById("email");
+        const emailFeedback = document.getElementById("emailFeedback");
+
+        emailInput.addEventListener("input", validateEmail);
+        emailInput.addEventListener("change", validateEmail);
+
+        function validateEmail() {
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+            const multipleDotPattern = /\.{2,}/;
+            const multipleComPattern = /\.com(\.com|\.net|\.org|\.edu|\.gov|\.mil|\.co|\.in|\.uk|\.us|\.ca|\.au|\.io|\.info|\.xyz)+$/;
+
+            const emailValue = emailInput.value.trim();
+
+            if (emailValue === "") {
+                emailInput.classList.add("is-invalid");
+                emailFeedback.textContent = "Email is required.";
+            } else if (!emailPattern.test(emailValue) || multipleDotPattern.test(emailValue) || multipleComPattern.test(emailValue)) {
+                emailInput.classList.add("is-invalid");
+                emailFeedback.textContent = "Please enter a valid email address.";
+            } else {
+                emailInput.classList.remove("is-invalid");
+                emailInput.classList.add("is-valid");
+            }
+        }
+    });
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const mobileNoInput = document.getElementById("mobileNo");
+        const mobileNoFeedback = document.getElementById("mobileNoFeedback");
+
+        mobileNoInput.addEventListener("input", validateMobileNumber);
+        mobileNoInput.addEventListener("change", validateMobileNumber);
+
+        function validateMobileNumber() {
+            const mobilePattern = /^\d{10}$/;
+            const startsWithZeroPattern = /^0/;
+
+            const mobileValue = mobileNoInput.value.trim();
+
+            if (mobileValue === "") {
+                mobileNoInput.classList.add("is-invalid");
+                mobileNoFeedback.textContent = "Mobile Number is required.";
+            } else if (!mobilePattern.test(mobileValue) || startsWithZeroPattern.test(mobileValue)) {
+                mobileNoInput.classList.add("is-invalid");
+                mobileNoFeedback.textContent = "Please enter a valid 10-digit mobile number.";
+            } else {
+                mobileNoInput.classList.remove("is-invalid");
+                mobileNoInput.classList.add("is-valid");
+            }
+        }
+    });
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const userRoleInput = document.getElementById("userRole");
+        const departmentInput = document.getElementById("department");
+
+        userRoleInput.addEventListener("change", validateSelectFields);
+        departmentInput.addEventListener("change", validateSelectFields);
+
+        function validateSelectFields() {
+            if (userRoleInput.value === "") {
+                userRoleInput.classList.add("is-invalid");
+            } else {
+                userRoleInput.classList.remove("is-invalid");
+                userRoleInput.classList.add("is-valid");
+            }
+
+            if (departmentInput.value === "") {
+                departmentInput.classList.add("is-invalid");
+            } else {
+                departmentInput.classList.remove("is-invalid");
+                departmentInput.classList.add("is-valid");
+            }
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const passwordInput = document.getElementById("password");
+        const confirmPasswordInput = document.getElementById("confirmPassword");
+
+        passwordInput.addEventListener("input", validatePassword);
+        confirmPasswordInput.addEventListener("input", validateConfirmPassword);
+
+        function validatePassword() {
+            const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+
+            if (!passwordPattern.test(passwordInput.value)) {
+                passwordInput.classList.add("is-invalid");
+            } else {
+                passwordInput.classList.remove("is-invalid");
+                passwordInput.classList.add("is-valid");
+            }
+
+            validateConfirmPassword();
+        }
+
+        function validateConfirmPassword() {
+            if (confirmPasswordInput.value !== passwordInput.value) {
+                confirmPasswordInput.classList.add("is-invalid");
+            } else {
+                confirmPasswordInput.classList.remove("is-invalid");
+                confirmPasswordInput.classList.add("is-valid");
+            }
+        }
+    });
+
+    document.getElementById("addUserForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        if (document.getElementById("password").value !== document.getElementById("confirmPassword").value) {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Passwords do not match!",
+            });
+            return;
+        }
+
+        let formData = new FormData(this);
+        let csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
+
+        fetch("/add-user-data/", {
+            method: "POST",
+            body: formData,
+            headers: { "X-CSRFToken": csrfToken }
+        })
+        .then(response => response.json())
+        .then(data => {
+            Swal.fire({
+                icon: data.success ? "success" : "error",
+                title: data.success ? "Success!" : "Error!",
+                text: data.message,
+            }).then(() => { if (data.success) location.reload(); });
+        })
+        .catch(() => Swal.fire({ icon: "error", title: "Server Error!", text: "Something went wrong." }));
+    });
+</script>
+{% endblock javascripts %}
