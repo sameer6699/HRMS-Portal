@@ -22,6 +22,7 @@ import os
 import imaplib
 import email
 from email.header import decode_header
+import requests
 
 # user Name :- Sameer_Jadhav
 # Password :- sameer@6699
@@ -375,76 +376,57 @@ def typography_view(request):
     return render(request, 'home/components-typography.html')
 
 
-
+# MongoDB Connection
 client = MongoClient("mongodb://localhost:27017/")
 db = client["CRM_Tickit_Management_System"]
 ticket_collection = db["email_generated_tickets"]
 
-# Outlook Mail Credentials
-EMAIL_HOST = "imap-mail.outlook.com" 
-EMAIL_USER = "Sameer.Jadhav@thesilvertech.com"  
-EMAIL_PASS = "Sjadhav@#$123"  
+# Nylas API Config
+NYLAS_API_KEY = "nyk_v0_DRFB1STRuvQhnfI5ifdBEqDOUAdbqBM2s0efwKVzViso904d8kJQcVJZiTyzoogu"
+GRANT_ID = "fb12bcab-f5ac-4902-82e6-7aad79e6046f"
+NYLAS_API_BASE = "https://api.us.nylas.com"
 
-def fetch_support_emails():
-    """Fetch unread support emails and convert them into tickets."""
-    print("Starting to fetch emails...")
+def fetch_support_emails_via_nylas():
+    print("=" * 60)
+    print("Starting Nylas email fetch process...")
+
     try:
-        # Connect to Outlook's IMAP server
-        print(f"Connecting to IMAP server: {EMAIL_HOST}")
-        mail = imaplib.IMAP4_SSL(EMAIL_HOST)
-        print(f"Logging in with email: {EMAIL_USER}")
-        mail.login(EMAIL_USER, EMAIL_PASS)
-        
-        # Select the inbox
-        print("Selecting the inbox...")
-        mail.select("inbox")
-        
-        # Search for all UNSEEN emails
-        print("Searching for UNSEEN emails...")
-        status, messages = mail.search(None, "UNSEEN")
-        print(f"Search status: {status}")
-        
-        if status != 'OK':
-            print("No unread emails found!")
-            return
+        url = f"{NYLAS_API_BASE}/v3/grants/{GRANT_ID}/messages"
+        headers = {
+            "Accept": "application/json",
+            "Authorization": f"Bearer {NYLAS_API_KEY}",
+            "Content-Type": "application/json",
+        }
+        params = {
+            "limit": 10,
+            "unread": True
+        }
 
-        mail_ids = messages[0].split()
-        print(f"Number of unread emails found: {len(mail_ids)}")
+        response = requests.get(url, headers=headers, params=params)
+        response.raise_for_status()
 
-        for mail_id in mail_ids:
-            print(f"Processing email ID: {mail_id}")
-            _, msg_data = mail.fetch(mail_id, "(RFC822)")
-            raw_email = msg_data[0][1]
-            msg = email.message_from_bytes(raw_email)
-            
-            # Decode subject
-            subject, encoding = decode_header(msg["Subject"])[0]
-            if isinstance(subject, bytes):
-                subject = subject.decode(encoding or "utf-8")
-            print(f"Decoded Subject: {subject}")
+        # Correct way to extract emails list
+        emails = response.json().get("data", [])
 
-            # Decode sender email
-            from_email = msg.get("From")
-            print(f"Sender Email: {from_email}")
+        print(f"Fetched {len(emails)} unread emails.")
 
-            # Get email content
-            if msg.is_multipart():
-                print("Email is multipart, extracting text/plain part...")
-                for part in msg.walk():
-                    content_type = part.get_content_type()
-                    if content_type == "text/plain":
-                        body = part.get_payload(decode=True).decode("utf-8", errors="ignore")
-                        print("Email body (text/plain):", body[:200])
-                        break
-            else:
-                body = msg.get_payload(decode=True).decode("utf-8", errors="ignore")
-                print("Email body:", body[:200])
+        for i, email_obj in enumerate(emails, start=1):
+            print(f"\n--- Processing Email {i} ---")
 
-            # Generate Ticket ID
+            if not isinstance(email_obj, dict):
+                print("Skipping non-dictionary item in response.")
+                continue
+
+            subject = email_obj.get("subject", "No Subject")
+            from_email = email_obj.get("from", [{}])[0].get("email", "unknown@unknown.com")
+            body = email_obj.get("snippet", "")
+
+            print(f"Subject: {subject}")
+            print(f"From: {from_email}")
+            print(f"Body (partial): {body[:100]}...")
+
             ticket_id = f"T{datetime.now().strftime('%Y%m%d%H%M%S')}"
-            print(f"Generated Ticket ID: {ticket_id}")
 
-            # Prepare ticket data
             ticket_data = {
                 "ticket_id": ticket_id,
                 "subject": subject,
@@ -454,28 +436,26 @@ def fetch_support_emails():
                 "status": "Open",
                 "email": from_email,
             }
-            
-            # Save to MongoDB
-            print(f"Inserting ticket data into MongoDB: {ticket_data}")
+
+            print("Inserting ticket into MongoDB...")
             ticket_collection.insert_one(ticket_data)
+            print("Ticket inserted.")
 
-            # Mark email as seen
-            print(f"Marking email ID {mail_id} as read...")
-            mail.store(mail_id, "+FLAGS", "\\Seen")
+        print("\nFinished processing all Nylas emails.")
+        print("=" * 60)
 
-        print("Finished processing emails.")
-        mail.logout()
-
+    except requests.exceptions.HTTPError as http_err:
+        print("HTTP error occurred:", http_err)
     except Exception as e:
-        print("Error fetching emails:", str(e))
+        print("General error occurred while fetching emails via Nylas:", str(e))
 
-# Call the function to test
-fetch_support_emails()
+# Execute the function
+fetch_support_emails_via_nylas()
 
 """ API End Point to trigger email Fetching Function """
 @csrf_exempt
 def fetch_tickets_view(request):
     if request.method == "POST":
-        fetch_support_emails()
+        fetch_support_emails_via_nylas()
         return JsonResponse({"message": "Fetched latest tickets from email inbox"}, status=200)
     return JsonResponse({"error": "Invalid request"}, status=400)
