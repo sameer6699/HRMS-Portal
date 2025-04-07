@@ -44,8 +44,6 @@ urlpatterns = [
     path('settings/', settings_view, name='settings'),          # Url Route fpr Settings Sidebar Section Code.
     path('bootstrap-tables/', bootstrap_tables_view, name='bootstrap_tables'),
 
-
-
     # Temperory Sidebar Component Route for Component Section.
     path('buttons/', buttons_view, name='buttons'),
     path('notifications/', notifications_view, name='components_notifications'),

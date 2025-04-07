@@ -339,9 +339,6 @@ def add_user_role(request):
 def add_user_view(request):
     return render(request, 'home/add-user.html')
 
-def transactions_view(request):
-    return render(request, 'home/transactions.html')
-
 def settings_view(request):
     return render(request, 'home/settings.html')
 
@@ -376,12 +373,10 @@ def typography_view(request):
     return render(request, 'home/components-typography.html')
 
 
-# MongoDB Connection
 client = MongoClient("mongodb://localhost:27017/")
 db = client["CRM_Tickit_Management_System"]
 ticket_collection = db["email_generated_tickets"]
 
-# Nylas API Config
 NYLAS_API_KEY = "nyk_v0_DRFB1STRuvQhnfI5ifdBEqDOUAdbqBM2s0efwKVzViso904d8kJQcVJZiTyzoogu"
 GRANT_ID = "fb12bcab-f5ac-4902-82e6-7aad79e6046f"
 NYLAS_API_BASE = "https://api.us.nylas.com"
@@ -405,7 +400,6 @@ def fetch_support_emails_via_nylas():
         response = requests.get(url, headers=headers, params=params)
         response.raise_for_status()
 
-        # Correct way to extract emails list
         emails = response.json().get("data", [])
 
         print(f"Fetched {len(emails)} unread emails.")
@@ -426,12 +420,18 @@ def fetch_support_emails_via_nylas():
             print(f"Body (partial): {body[:100]}...")
 
             ticket_id = f"T{datetime.now().strftime('%Y%m%d%H%M%S')}"
+            now = datetime.now()
+            ticket_creation_date = now.strftime("%d-%m-%Y")  
+            ticket_creation_time = now.strftime("%H:%M:%S")   
+            received_date = now.isoformat()                   # ISO Format
 
             ticket_data = {
                 "ticket_id": ticket_id,
                 "subject": subject,
                 "description": body,
-                "received_date": datetime.now().isoformat(),
+                "received_date": received_date,
+                "ticket_creation_date": ticket_creation_date,
+                "ticket_creation_time": ticket_creation_time,
                 "department": "Support",
                 "status": "Open",
                 "email": from_email,
@@ -452,6 +452,7 @@ def fetch_support_emails_via_nylas():
 # Execute the function
 fetch_support_emails_via_nylas()
 
+
 """ API End Point to trigger email Fetching Function """
 @csrf_exempt
 def fetch_tickets_view(request):
@@ -459,3 +460,30 @@ def fetch_tickets_view(request):
         fetch_support_emails_via_nylas()
         return JsonResponse({"message": "Fetched latest tickets from email inbox"}, status=200)
     return JsonResponse({"error": "Invalid request"}, status=400)
+
+def transactions_view(request):
+    # Connect to MongoDB
+    client = MongoClient("mongodb://localhost:27017/")
+    db = client["CRM_Tickit_Management_System"]
+    ticket_collection = db["email_generated_tickets"]
+    
+    # Fetch all tickets from MongoDB
+    tickets = ticket_collection.find()
+    
+    # Convert MongoDB cursor to a list
+    ticket_list = list(tickets)
+    
+    # Set the number of tickets per page
+    tickets_per_page = 10
+    
+    # Create a paginator instance
+    paginator = Paginator(ticket_list, tickets_per_page)
+    
+    # Get the current page number from the request, default to 1 if not present
+    page_number = request.GET.get('page', 1)
+    
+    # Get the corresponding page
+    page_obj = paginator.get_page(page_number)
+    
+    # Render the page with the paginated data
+    return render(request, 'home/transactions.html', {'page_obj': page_obj})
