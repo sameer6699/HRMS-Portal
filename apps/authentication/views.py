@@ -23,6 +23,7 @@ import imaplib
 import email
 from email.header import decode_header
 import requests
+import uuid
 
 # user Name :- Sameer_Jadhav
 # Password :- sameer@6699
@@ -373,10 +374,12 @@ def typography_view(request):
     return render(request, 'home/components-typography.html')
 
 
+# MongoDB Connection
 client = MongoClient("mongodb://localhost:27017/")
 db = client["CRM_Tickit_Management_System"]
 ticket_collection = db["email_generated_tickets"]
 
+# Nylas API Details
 NYLAS_API_KEY = "nyk_v0_DRFB1STRuvQhnfI5ifdBEqDOUAdbqBM2s0efwKVzViso904d8kJQcVJZiTyzoogu"
 GRANT_ID = "fb12bcab-f5ac-4902-82e6-7aad79e6046f"
 NYLAS_API_BASE = "https://api.us.nylas.com"
@@ -392,8 +395,9 @@ def fetch_support_emails_via_nylas():
             "Authorization": f"Bearer {NYLAS_API_KEY}",
             "Content-Type": "application/json",
         }
+
         params = {
-            "limit": 10,
+            "limit": 20,
             "unread": True
         }
 
@@ -407,23 +411,22 @@ def fetch_support_emails_via_nylas():
         for i, email_obj in enumerate(emails, start=1):
             print(f"\n--- Processing Email {i} ---")
 
-            if not isinstance(email_obj, dict):
-                print("Skipping non-dictionary item in response.")
-                continue
+            message_id = email_obj.get("id")
+
+            if ticket_collection.find_one({"message_id": message_id}):
+                print(f"Skipping duplicate email with message_id: {message_id}")
+                continue  # Skip duplicate email
 
             subject = email_obj.get("subject", "No Subject")
             from_email = email_obj.get("from", [{}])[0].get("email", "unknown@unknown.com")
             body = email_obj.get("snippet", "")
 
-            print(f"Subject: {subject}")
-            print(f"From: {from_email}")
-            print(f"Body (partial): {body[:100]}...")
+            ticket_id = f"T{uuid.uuid4().hex[:10].upper()}"
 
-            ticket_id = f"T{datetime.now().strftime('%Y%m%d%H%M%S')}"
             now = datetime.now()
-            ticket_creation_date = now.strftime("%d-%m-%Y")  
-            ticket_creation_time = now.strftime("%H:%M:%S")   
-            received_date = now.isoformat()                   # ISO Format
+            ticket_creation_date = now.strftime("%d-%m-%Y")
+            ticket_creation_time = now.strftime("%H:%M:%S")
+            received_date = now.isoformat()
 
             ticket_data = {
                 "ticket_id": ticket_id,
@@ -435,11 +438,12 @@ def fetch_support_emails_via_nylas():
                 "department": "Support",
                 "status": "Open",
                 "email": from_email,
+                "message_id": message_id,  # Storing message_id for future duplicate check
             }
 
             print("Inserting ticket into MongoDB...")
             ticket_collection.insert_one(ticket_data)
-            print("Ticket inserted.")
+            print(f"Ticket Inserted with Ticket ID: {ticket_id}")
 
         print("\nFinished processing all Nylas emails.")
         print("=" * 60)
@@ -461,6 +465,11 @@ def fetch_tickets_view(request):
         return JsonResponse({"message": "Fetched latest tickets from email inbox"}, status=200)
     return JsonResponse({"error": "Invalid request"}, status=400)
 
+"""
+Function to fetch tickets from MongoDB and display them in a paginated view.
+This function connects to the MongoDB database, retrieves the tickets, and uses Django's 
+Paginator to paginate the results.
+"""
 def transactions_view(request):
     # Connect to MongoDB
     client = MongoClient("mongodb://localhost:27017/")

@@ -3,7 +3,24 @@
 {% block title %} HelpDesk Management Portal {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+
+<style>
+
+    .table-responsive-scroll {
+        max-height: 500px; 
+        overflow-y: auto;
+    }
+
+    .table-responsive-scroll thead th {
+        position: sticky;
+        top: 0;
+        background-color: #fff;
+        z-index: 2;
+    }
+</style>
+
+{% endblock stylesheets %}
 
 {% block content %}
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
@@ -60,68 +77,69 @@
           </div>
       </div>
   </div>
-  
-  <div class="card card-body border-0 shadow table-wrapper table-responsive ">
-        <table class="table table-hover w-100">
-            <thead>
-                <tr>
-                    <th class="border-gray-200">Ticket ID</th>
-                    <th class="border-gray-200">Email</th>
-                    <th class="border-gray-200">Subject</th>
-                    <th class="border-gray-200" width="5%">Description</th>
-                    <th class="border-gray-200">Ticket Received Date</th>
-                    <th class="border-gray-200">Department</th>
-                    <th class="border-gray-200">Status</th>
-                    <th class="border-gray-200">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if page_obj %}
-                    {% for ticket in page_obj %}
-                        <tr>
-                            <td><a href="#" class="fw-bold">{{ ticket.ticket_id }}</a></td>
-                            <td><span class="fw-normal">{{ ticket.email }}</span></td>
-                            <td><span class="fw-normal">{{ ticket.subject }}</span></td>
-                            <td>
-                                <p class="fw-normal text-truncate" style="width:250px !important;" data-bs-toggle="modal" data-bs-target="#descriptionModal" onclick="openModal('{{ ticket.description }}')">
-                                    {{ ticket.description }}
-                                </p>
-                            </td>
-                            <td><span class="fw-normal">{{ ticket.ticket_creation_date }}</span></td>
-                            <td><span class="fw-bold">{{ ticket.department }}</span></td>
-                            <td>
-                                {% if ticket.status == 'Pending' %}
-                                    <span class="fw-bold text-warning">{{ ticket.status }}</span>
-                                {% elif ticket.status == 'Open' %}
-                                    <span class="fw-bold text-success">{{ ticket.status }}</span>
-                                {% elif ticket.status == 'Closed' %}
-                                    <span class="fw-bold text-danger">{{ ticket.status }}</span>
-                                {% else %}
-                                    <span class="fw-bold">{{ ticket.status }}</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <div class="btn-group">
-                                    <button class="btn btn-link text-dark dropdown-toggle dropdown-toggle-split m-0 p-0" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <span class="icon icon-sm"><span class="fas fa-ellipsis-h icon-dark"></span></span>
-                                        <span class="visually-hidden">Toggle Dropdown</span>
-                                    </button>
-                                    <div class="dropdown-menu py-0">
-                                        <a class="dropdown-item rounded-top" href="#"><span class="fas fa-eye me-2"></span>View Details</a>
-                                        <a class="dropdown-item" href="#"><span class="fas fa-edit me-2"></span>Assign To</a>
-                                        <a class="dropdown-item text-danger rounded-bottom" href="#"><span class="fas fa-trash-alt me-2"></span>Remove</a>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                {% else %}
+  <div class="card card-body border-0 shadow table-wrapper table-responsive">
+        <div class="table-container" style="position: relative; max-height: 500px; overflow-y: auto; overflow-x: auto;">
+            <table class="table table-hover w-100 text-nowrap position-relative">
+                <thead class="sticky-top bg-white">
                     <tr>
-                        <td colspan="8" class="text-center">No Tickets Data Found.</td>
+                        <th class="border-gray-200">Ticket ID</th>
+                        <th class="border-gray-200">Email</th>
+                        <th class="border-gray-200">Subject</th>
+                        <th class="border-gray-200" width="5%">Description</th>
+                        <th class="border-gray-200">Ticket Received Date</th>
+                        <th class="border-gray-200">Department</th>
+                        <th class="border-gray-200">Status</th>
+                        <th class="border-gray-200">Action</th>
                     </tr>
-                {% endif %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="table-responsive-scroll">
+                    {% if page_obj %}
+                        {% for ticket in page_obj %}
+                            <tr>
+                                <td><a href="#" class="fw-bold">{{ ticket.ticket_id }}</a></td>
+                                <td><span class="fw-normal">{{ ticket.email }}</span></td>
+                                <td><span class="fw-normal">{{ ticket.subject }}</span></td>
+                                <td>
+                                    <p class="fw-normal text-truncate" style="width:250px !important;" data-bs-toggle="modal" data-bs-target="#descriptionModal" onclick="openModal(this)" data-hidden="{{ ticket.description }}">
+                                        {{ ticket.description }}
+                                    </p>
+                                </td>
+                                <td><span class="fw-normal">{{ ticket.ticket_creation_date }}</span></td>
+                                <td><span class="fw-bold">{{ ticket.department }}</span></td>
+                                <td>
+                                    {% if ticket.status == 'Pending' %}
+                                        <span class="fw-bold text-warning">{{ ticket.status }}</span>
+                                    {% elif ticket.status == 'Open' %}
+                                        <span class="fw-bold text-success">{{ ticket.status }}</span>
+                                    {% elif ticket.status == 'Closed' %}
+                                        <span class="fw-bold text-danger">{{ ticket.status }}</span>
+                                    {% else %}
+                                        <span class="fw-bold">{{ ticket.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button class="btn btn-link text-dark dropdown-toggle dropdown-toggle-split m-0 p-0" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="icon icon-sm"><span class="fas fa-ellipsis-h icon-dark"></span></span>
+                                            <span class="visually-hidden">Toggle Dropdown</span>
+                                        </button>
+                                        <div class="dropdown-menu py-0">
+                                            <a class="dropdown-item rounded-top" href="#"><span class="fas fa-eye me-2"></span>View Details</a>
+                                            <a class="dropdown-item" href="#"><span class="fas fa-edit me-2"></span>Assign To</a>
+                                            <a class="dropdown-item text-danger rounded-bottom" href="#"><span class="fas fa-trash-alt me-2"></span>Remove</a>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center">No Tickets Data Found.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
       <!-- Pagination controls -->
         <div class="card-footer px-3 border-0 d-flex flex-column flex-lg-row align-items-center justify-content-between">
             <nav aria-label="Page navigation example">
@@ -206,7 +224,8 @@
         .catch(error => console.error("Error fetching tickets:", error));
     });
 
-    function openModal(description) {
+    function openModal(e) {
+    var description = e.getAttribute('data-hidden');
     document.getElementById('modal-description').innerText = description;
 }
 </script>
