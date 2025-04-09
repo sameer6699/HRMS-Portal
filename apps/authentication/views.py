@@ -151,18 +151,20 @@ def add_user_data(request):
 
             # Extract user data
             userID = request.POST.get("userID")
+            firstName = request.POST.get("firstName")  # New Field
+            lastName = request.POST.get("lastName")    # New Field
             userName = request.POST.get("userName")
             email = request.POST.get("email")
             mobileNo = request.POST.get("mobileNo")
-            userRoles = request.POST.get("userRoles")  # Get the roles from the form
+            userRoles = request.POST.get("userRoles")
             department = request.POST.get("department")
             password = request.POST.get("password")  
 
-            # Validate data
-            if not all([userID, userName, email, mobileNo, userRoles, department, password]):
+            # Validate all required fields
+            if not all([userID, firstName, lastName, userName, email, mobileNo, userRoles, department, password]):
                 return JsonResponse({"success": False, "message": "All fields are required."}, status=400)
 
-            # Check if the userName or email already exists in the database
+            # Check for duplicate userName or email
             existing_user = coll_user.find_one({"$or": [{"userName": userName}, {"email": email}]})
             if existing_user:
                 if existing_user.get("userName") == userName:
@@ -173,33 +175,35 @@ def add_user_data(request):
             # Hash the password
             hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
 
-            # Add 'created_at' and 'created_time'
-            current_date = datetime.now().strftime('%Y-%m-%d')  # Current date in YYYY-MM-DD format
-            current_time = datetime.now().strftime('%H:%M:%S')  # Current time in HH:MM:SS format
+            # Prepare current date & time
+            current_date = datetime.now().strftime('%Y-%m-%d')
+            current_time = datetime.now().strftime('%H:%M:%S')
 
+            # Prepare Data to Insert
             user_data = {
                 "userID": userID,
+                "firstName": firstName,   # New Field
+                "lastName": lastName,     # New Field
                 "userName": userName,
                 "email": email,
                 "mobileNo": mobileNo,
-                "userRole": userRoles,  # Store multiple roles as a list
+                "userRole": userRoles,
                 "department": department,
-                "password": hashed_password.decode("utf-8"), 
-                "created_at": current_date,  # Adding created_at
-                "created_time": current_time,  # Adding created_time
+                "password": hashed_password.decode("utf-8"),
+                "created_at": current_date,
+                "created_time": current_time,
             }
 
             # Insert data into MongoDB
             insert_result = coll_user.insert_one(user_data)
 
-            # Check if the insertion was successful
             if insert_result.inserted_id:
                 return JsonResponse({"success": True, "message": "User added successfully!"})
             else:
                 return JsonResponse({"success": False, "message": "Failed to add user."}, status=500)
 
         except Exception as e:
-            print("Error:", e)  # Debugging
+            print("Error:", e)
             return JsonResponse({"success": False, "message": str(e)}, status=500)
 
     return JsonResponse({"success": False, "message": "Invalid request method."}, status=405)
@@ -216,6 +220,7 @@ def user_list():
     users_cursor = coll_user.find()
 
     user_list = []
+    print("List of Users", user_list)
     for user in users_cursor:
         user_created_at_str = user.get('created_at')
 
@@ -224,13 +229,18 @@ def user_list():
         except (ValueError, TypeError):
             user_created_at = None  
 
+        # Get the user roles, split by commas, and strip any leading/trailing whitespace
+        user_roles = user.get('userRole', '')
+        if user_roles:
+            user_roles = [role.strip() for role in user_roles.split(',')]  # Split by comma and remove extra spaces
+        
         user_data = {
             '_id': str(user.get('_id')),  
             'userID': user.get('userID'),
             'userName': user.get('userName'),
             'email': user.get('email'),
             'mobileNo': user.get('mobileNo'),
-            'userRole': user.get('userRole'),
+            'userRole': user_roles,  # Now it's a list of roles
             'department': user.get('department'),
             'created_at': user_created_at
         }

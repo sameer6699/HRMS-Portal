@@ -1,5 +1,15 @@
 // General styles
 
+.user-role {
+    display: inline-block;
+    padding: 5px 15px;
+    background-color: gray;
+    color: white;
+    border-radius: 50px; /* Makes it oval/circular */
+    font-weight: bold;
+    text-transform: capitalize; /* Capitalizes each word */
+}
+
 .table {
 
   thead th {

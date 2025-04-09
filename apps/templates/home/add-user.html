@@ -99,17 +99,16 @@
                             <div class="col-lg-6 col-md-12 mb-4">
                                 <label for="firstName">First Name</label>
                                 <input type="text" class="form-control" id="firstName" name="firstName"
-                                    placeholder="Enter First Name" required>
-                                <div class="invalid-feedback" id="firstNameFeedback">Please enter a valid first name.
-                                </div>
+                                    placeholder="Enter First Name" maxlength="25" required>
+                                <div class="invalid-feedback" id="firstNameFeedback">First Name should contain only letters and max 25 characters.</div>
                             </div>
+
                             <!-- Last Name -->
                             <div class="col-lg-6 col-md-12 mb-4">
                                 <label for="lastName">Last Name</label>
                                 <input type="text" class="form-control" id="lastName" name="lastName"
-                                    placeholder="Enter Last Name" required>
-                                <div class="invalid-feedback" id="lastNameFeedback">Please enter a valid last name.
-                                </div>
+                                    placeholder="Enter Last Name" maxlength="25" required>
+                                <div class="invalid-feedback" id="lastNameFeedback">Last Name should contain only letters and max 25 characters.</div>
                             </div>
                         </div>
                         <div class="row">
@@ -208,81 +207,8 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- SweetAlert2 -->
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const userRoleSelect = document.getElementById("userRole");
-        const selectedRolesContainer = document.getElementById("selectedRoles");
-
-        let selectedRoles = [];
-
-        userRoleSelect.addEventListener("change", function () {
-            let selectedOptions = Array.from(userRoleSelect.selectedOptions).map(option => option.value);
-
-            selectedOptions.forEach(role => {
-                if (!selectedRoles.includes(role)) {
-                    selectedRoles.push(role);
-                }
-            });
-
-            updateSelectedRoles();
-        });
-
-        function updateSelectedRoles() {
-            selectedRolesContainer.innerHTML = "";
-
-            selectedRoles.forEach(role => {
-                const badge = document.createElement("span");
-                badge.classList.add("role-badge", "badge", "bg-primary");
-                badge.innerHTML = `${role} <button type="button" onclick="removeRole('${role}')">&times;</button>`;
-
-                selectedRolesContainer.appendChild(badge);
-            });
-
-            updateSelectTag();
-        }
-
-        function updateSelectTag() {
-            for (let i = 0; i < userRoleSelect.options.length; i++) {
-                if (selectedRoles.includes(userRoleSelect.options[i].value)) {
-                    userRoleSelect.options[i].selected = true;
-                } else {
-                    userRoleSelect.options[i].selected = false;
-                }
-            }
-        }
-
-        window.removeRole = function (role) {
-            selectedRoles = selectedRoles.filter(r => r !== role);
-            updateSelectedRoles();
-        };
-    });
-
-    function togglePassword(inputId, iconId) {
-        let passwordInput = document.getElementById(inputId);
-        let icon = document.getElementById(iconId);
-
-        if (passwordInput.type === "password") {
-            passwordInput.type = "text";
-            icon.classList.remove("fa-eye");
-            icon.classList.add("fa-eye-slash");
-        } else {
-            passwordInput.type = "password";
-            icon.classList.remove("fa-eye-slash");
-            icon.classList.add("fa-eye");
-        }
-    }
-
-    function generateUserID() {
-        let today = new Date();
-        let day = String(today.getDate()).padStart(2, '0');
-        let month = String(today.getMonth() + 1).padStart(2, '0');
-        let randomNum = String(Math.floor(10 + Math.random() * 90));
-
-        let userID = `ICS${day}${month}${randomNum}`;
-        document.getElementById("userID").value = userID;
-    }
-
+    // Existing code for User ID generation and validation...
     window.onload = generateUserID;
-
     document.addEventListener("DOMContentLoaded", function () {
         const userNameInput = document.getElementById("userName");
         const userNameFeedback = document.getElementById("userNameFeedback");
@@ -302,6 +228,38 @@
         });
     });
 
+    // First Name and Last Name validation...
+    document.addEventListener("DOMContentLoaded", function () {
+        const firstNameInput = document.getElementById("firstName");
+        const lastNameInput = document.getElementById("lastName");
+        const firstNameFeedback = document.getElementById("firstNameFeedback");
+        const lastNameFeedback = document.getElementById("lastNameFeedback");
+
+        firstNameInput.addEventListener("input", function () {
+            validateNameField(firstNameInput, firstNameFeedback, "First Name");
+        });
+
+        lastNameInput.addEventListener("input", function () {
+            validateNameField(lastNameInput, lastNameFeedback, "Last Name");
+        });
+
+        function validateNameField(inputField, feedbackElement, fieldName) {
+            const namePattern = /^[A-Za-z]{2,30}$/;
+
+            if (inputField.value.trim() === "") {
+                inputField.classList.add("is-invalid");
+                feedbackElement.textContent = `${fieldName} is required.`;
+            } else if (!namePattern.test(inputField.value.trim())) {
+                inputField.classList.add("is-invalid");
+                feedbackElement.textContent = `${fieldName} must be 2-30 characters long and contain only letters.`;
+            } else {
+                inputField.classList.remove("is-invalid");
+                inputField.classList.add("is-valid");
+            }
+        }
+    });
+
+    // Email validation...
     document.addEventListener("DOMContentLoaded", function () {
         const emailInput = document.getElementById("email");
         const emailFeedback = document.getElementById("emailFeedback");
@@ -329,6 +287,7 @@
         }
     });
 
+    // Mobile Number validation...
     document.addEventListener("DOMContentLoaded", function () {
         const mobileNoInput = document.getElementById("mobileNo");
         const mobileNoFeedback = document.getElementById("mobileNoFeedback");
@@ -355,30 +314,34 @@
         }
     });
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const userRoleInput = document.getElementById("userRole");
-        const departmentInput = document.getElementById("department");
+    // Password visibility toggle...
+    function togglePassword(inputId, iconId) {
+        let passwordInput = document.getElementById(inputId);
+        let icon = document.getElementById(iconId);
 
-        userRoleInput.addEventListener("change", validateSelectFields);
-        departmentInput.addEventListener("change", validateSelectFields);
-
-        function validateSelectFields() {
-            if (userRoleInput.value === "") {
-                userRoleInput.classList.add("is-invalid");
-            } else {
-                userRoleInput.classList.remove("is-invalid");
-                userRoleInput.classList.add("is-valid");
-            }
-
-            if (departmentInput.value === "") {
-                departmentInput.classList.add("is-invalid");
-            } else {
-                departmentInput.classList.remove("is-invalid");
-                departmentInput.classList.add("is-valid");
-            }
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            passwordInput.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
         }
-    });
+    }
 
+    // Generate User ID...
+    function generateUserID() {
+        let today = new Date();
+        let day = String(today.getDate()).padStart(2, '0');
+        let month = String(today.getMonth() + 1).padStart(2, '0');
+        let randomNum = String(Math.floor(10 + Math.random() * 90));
+
+        let userID = `ICS${day}${month}${randomNum}`;
+        document.getElementById("userID").value = userID;
+    }
+
+    // Password validation...
     document.addEventListener("DOMContentLoaded", function () {
         const passwordInput = document.getElementById("password");
         const confirmPasswordInput = document.getElementById("confirmPassword");
@@ -409,9 +372,32 @@
         }
     });
 
+    // Swal Alert if password doesn't match...
     document.getElementById("addUserForm").addEventListener("submit", function (event) {
+        // Prevent form submission
         event.preventDefault();
 
+        let isValid = true;
+        const formElements = document.querySelectorAll("#addUserForm input, #addUserForm select");
+
+        // Loop through form elements to validate
+        formElements.forEach((element) => {
+            if (element.classList.contains("is-invalid")) {
+                isValid = false;
+            }
+        });
+
+        // Check if all fields are valid
+        if (!isValid) {
+            Swal.fire({
+                icon: "error",
+                title: "Invalid Form",
+                text: "Please fill all fields correctly.",
+            });
+            return;
+        }
+
+        // If passwords don't match, show alert
         if (document.getElementById("password").value !== document.getElementById("confirmPassword").value) {
             Swal.fire({
                 icon: "error",
@@ -421,6 +407,7 @@
             return;
         }
 
+        // Proceed with form submission
         var formData = new FormData(this);
         let csrfToken = document.querySelector("[name=csrfmiddlewaretoken]").value;
         let selectedRoles = [];
@@ -434,8 +421,8 @@
                 }
             }
         }
-        
-        formData.append("userRoles",$('#userRole1').val());
+
+        formData.append("userRoles", $('#userRole1').val());
 
         fetch("/add-user-data/", {
             method: "POST",
@@ -451,36 +438,6 @@
                 }).then(() => { if (data.success) location.reload(); });
             })
             .catch(() => Swal.fire({ icon: "error", title: "Server Error!", text: "Something went wrong." }));
-    });
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const userRoleSelect = document.getElementById("userRole");
-        const selectedRolesContainer = document.getElementById("selectedRoles");
-        let selectedRoles = [];
-
-        userRoleSelect.addEventListener("change", function () {
-            const selectedRole = userRoleSelect.value;
-            if (selectedRole && !selectedRoles.includes(selectedRole)) {
-                selectedRoles.push(selectedRole);
-                displayRoles();
-            }
-            userRoleSelect.value = "";
-        });
-
-        function displayRoles() {
-            selectedRolesContainer.innerHTML = "";
-            selectedRoles.forEach((role, index) => {
-                const badge = document.createElement("span");
-                badge.className = "role-badge badge bg-primary";
-                badge.innerHTML = `${role} <button type="button" onclick="removeRole(${index})">&times;</button>`;
-                selectedRolesContainer.appendChild(badge);
-            });
-        }
-
-        window.removeRole = function (index) {
-            selectedRoles.splice(index, 1);
-            displayRoles();
-        };
     });
 
 </script>

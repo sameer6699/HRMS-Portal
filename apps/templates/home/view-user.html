@@ -1,9 +1,11 @@
 {% extends "layouts/base.html" %}
-
+{% load static %}
 {% block title %} Tables {% endblock %} 
 
 <!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'assets/css/tables.css' %}">
+{% endblock stylesheets %}
 
 {% block content %}
   <div class="py-4">
@@ -54,7 +56,13 @@
                         <td class="fw-bold d-flex align-items-center">{{ user.userName }}</td>
                         <td>{{ user.email }}</td>
                         <td>{{ user.mobileNo }}</td>
-                        <td>{{ user.userRole }}</td>
+                        <td>
+                            {% for role in user.userRole %}
+                                <div class="user-role" style="display: inline-block; padding: 5px 15px; background-color: gray; color: white; border-radius: 50px; font-weight: bold; text-transform: capitalize; margin-right: 8px;">
+                                    {{ role }}
+                                </div>
+                            {% endfor %}
+                        </td>
                         <td>{{ user.department }}</td>
                         <td class="text-success">
                             <div class="d-flex align-items-center">
@@ -76,6 +84,7 @@
             </table>
         </div>
       </div>
+      <!-- Dynamic Pagination Code is Here in the below Section -->
       <div class="card-footer px-3 border-0 d-flex flex-column flex-lg-row align-items-center justify-content-between">
         <nav aria-label="Page navigation example">
             <ul class="pagination mb-0">
@@ -100,8 +109,7 @@
         <div class="fw-normal small mt-4 mt-lg-0">
             Showing <b>{{ ListUser.start_index }}</b> to <b>{{ ListUser.end_index }}</b> of <b>{{ ListUser.paginator.count }}</b> entries
         </div>
-    </div>
-    
+    </div>    
   </div>
 <!-------------------------------------------------------  End of the table  ----------------------------------------------->
 <!--------------------------------------------------- List of Archived Users  ------------------------------------------------------------------->
@@ -187,5 +195,53 @@
 
 {% endblock content %}
 
-<!-- Specific Page JS goes HERE  -->
+<script>
+    // Wait for the DOM to load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Loop through each element that has the 'user-roles' class
+        document.querySelectorAll('.user-roles').forEach(function(element) {
+            // Get the roles data attribute from the div
+            const roles = element.getAttribute('data-roles');
+            
+            // Split the roles by comma and trim any extra spaces
+            const roleArray = roles.split(',').map(role => role.trim());
+            
+            // Empty the div before appending roles
+            element.innerHTML = '';
+
+            // Loop through the roles and create a div for each
+            roleArray.forEach(function(role) {
+                // Create a new div for the role
+                const roleDiv = document.createElement('div');
+                
+                // Set some inline styles for the oval shape and color
+                roleDiv.style.display = 'inline-block';
+                roleDiv.style.padding = '5px 15px';
+                roleDiv.style.backgroundColor = getRoleColor(role);
+                roleDiv.style.color = 'white';
+                roleDiv.style.borderRadius = '50px';
+                roleDiv.style.fontWeight = 'bold';
+                roleDiv.style.textTransform = 'capitalize';
+                roleDiv.style.marginRight = '5px';
+                
+                // Set the role text
+                roleDiv.textContent = role;
+                
+                // Append the role div to the parent element
+                element.appendChild(roleDiv);
+            });
+        });
+    });
+
+    // Function to get color for each role
+    function getRoleColor(role) {
+        switch(role.toLowerCase()) {
+            case 'supervisor': return '#007bff';  // Blue
+            case 'support agent': return '#28a745';  // Green
+            case 'admin': return '#dc3545';  // Red
+            case 'manager': return '#6f42c1';  // Purple
+            default: return '#6c757d';  // Gray
+        }
+    }
+</script>
 {% block javascripts %}{% endblock javascripts %}
