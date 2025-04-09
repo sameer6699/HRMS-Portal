@@ -374,18 +374,74 @@ def typography_view(request):
     return render(request, 'home/components-typography.html')
 
 
-# MongoDB Connection
+
+# MongoDB setup
 client = MongoClient("mongodb://localhost:27017/")
 db = client["CRM_Tickit_Management_System"]
 ticket_collection = db["email_generated_tickets"]
 
-# Nylas API Details
+# Nylas API settings
 NYLAS_API_KEY = "nyk_v0_DRFB1STRuvQhnfI5ifdBEqDOUAdbqBM2s0efwKVzViso904d8kJQcVJZiTyzoogu"
 GRANT_ID = "fb12bcab-f5ac-4902-82e6-7aad79e6046f"
 NYLAS_API_BASE = "https://api.us.nylas.com"
 
+# List of allowed email domains
+ALLOWED_EMAIL_DOMAINS = ["gmail.com", "outlook.com", "yahoo.com"]  # Add more domains as needed
+
+def send_auto_reply(to_email, ticket_id):
+    # Extract the domain part of the email
+    email_domain = to_email.split('@')[-1].lower()
+
+    # Check if the email domain is in the allowed list
+    if email_domain not in ALLOWED_EMAIL_DOMAINS:
+        print(f"Skipping auto-reply for {to_email} as it's not in the allowed domains list.")
+        return
+
+    print(f"Attempting to send auto-reply to {to_email} with Ticket ID: {ticket_id}")
+
+    url = f"{NYLAS_API_BASE}/v3/grants/{GRANT_ID}/messages"
+    headers = {
+        "Accept": "application/json",
+        "Authorization": f"Bearer {NYLAS_API_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    auto_reply_message = f"""
+    Dear Customer,
+
+    Thank you for reaching out to us. We have received your email and created a ticket for you.
+
+    Your ticket ID is: {ticket_id}
+
+    Our team will review your request and get back to you as soon as possible.
+
+    Best regards,
+    Support Team
+    """
+
+    data = {
+        "subject": f"Your Support Ticket is generated: {ticket_id}",
+        "body": {
+            "content_type": "text/plain",
+            "content": auto_reply_message,
+        },
+        "to": [{"email": to_email}],
+        "from": [{"email": "Sameer.Jadhav@thesilvertech.com"}],  # Replace with your support email
+    }
+
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        response.raise_for_status()  # Check if the request was successful
+        print(f"Auto-reply successfully sent to {to_email} with Ticket ID: {ticket_id}")
+        print(f"Response from Nylas: {response.status_code} - {response.text}")
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error occurred while sending auto-reply to {to_email}: {http_err}")
+        print(f"Response from Nylas: {response.status_code} - {response.text}")
+    except Exception as e:
+        print(f"Error occurred while sending auto-reply to {to_email}: {str(e)}")
+
 def fetch_support_emails_via_nylas():
-    print("=" * 60)
+    print("=" * 90)
     print("Starting Nylas email fetch process...")
 
     try:
@@ -397,7 +453,7 @@ def fetch_support_emails_via_nylas():
         }
 
         params = {
-            "limit": 20,
+            "limit": 50,
             "unread": True
         }
 
@@ -445,6 +501,9 @@ def fetch_support_emails_via_nylas():
             ticket_collection.insert_one(ticket_data)
             print(f"Ticket Inserted with Ticket ID: {ticket_id}")
 
+            # Send the auto-reply only if the email domain is allowed
+            send_auto_reply(from_email, ticket_id)
+
         print("\nFinished processing all Nylas emails.")
         print("=" * 60)
 
@@ -455,7 +514,6 @@ def fetch_support_emails_via_nylas():
 
 # Execute the function
 fetch_support_emails_via_nylas()
-
 
 """ API End Point to trigger email Fetching Function """
 @csrf_exempt

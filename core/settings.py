@@ -1,6 +1,7 @@
 import os
 from decouple import config
 from unipath import Path
+from celery.schedules import crontab
 # Import MongoDB connection setup from mongodb_config.py
 from .mongodb_config import mongo_config
 
@@ -60,6 +61,27 @@ TEMPLATES = [
         },
     },
 ]
+
+
+"""Clearly Configuration for Scheduling tasks"""
+
+# Celery Configuration
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+
+# Celery Beat Settings
+INSTALLED_APPS += ['django_celery_beat']
+
+CELERY_BEAT_SCHEDULE = {
+    'fetch-emails-every-30-seconds': {
+        'task': 'apps.authentication.tasks.fetch_emails_task',
+        'schedule': 30.0,  # every 30 seconds
+    },
+}
+
+
+
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
