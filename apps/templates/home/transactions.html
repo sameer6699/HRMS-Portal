@@ -188,7 +188,7 @@
                 Showing <b>{{ page_obj.start_index }}</b> to <b>{{ page_obj.end_index }}</b> out of <b>{{ page_obj.paginator.count }}</b> entries
             </div>
         </div>
-  </div>
+  </div> 
 <!-- Modal -->
 <div class="modal fade" id="descriptionModal" tabindex="-1" aria-labelledby="descriptionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -208,25 +208,4 @@
 </div>
 {% endblock content %}
 {% block javascripts %}
-<script>
-    document.getElementById("fetchTickets").addEventListener("click", function () {
-        fetch("/fetch-tickets/", {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": "{{ csrf_token }}"
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message); // Show a message after fetching
-            location.reload(); // Refresh the page to show new tickets
-        })
-        .catch(error => console.error("Error fetching tickets:", error));
-    });
-
-    function openModal(e) {
-    var description = e.getAttribute('data-hidden');
-    document.getElementById('modal-description').innerText = description;
-}
-</script>
 {% endblock javascripts %}
