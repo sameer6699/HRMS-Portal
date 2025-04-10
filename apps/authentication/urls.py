@@ -41,6 +41,7 @@ urlpatterns = [
 
     # Side Bar Component routes
     path('transactions/', transactions_view, name='transactions'),
+    path('detail-tickets-info/', detail_tickets_info, name='detail_tickets_info'),
     path('settings/', settings_view, name='settings'),          # Url Route fpr Settings Sidebar Section Code.
     path('bootstrap-tables/', bootstrap_tables_view, name='bootstrap_tables'),
 

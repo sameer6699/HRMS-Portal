@@ -44,6 +44,14 @@
                     <span class="sidebar-text">All Tickets Logs</span>
                 </a>
             </li>
+            <li class="nav-item {% if 'transactions' in segment %} active {% endif %}">
+              <a href="{% url 'detail_tickets_info' %}" class="nav-link">
+                  <span class="sidebar-icon">
+                    <i class="fas fa-info-circle me-2"></i>
+                  </span>
+                  <span class="sidebar-text">Detail Tickets Info</span>
+              </a>
+          </li>
             <li class="nav-item {% if 'settings' in segment %} active {% endif %}">
               <a href="{% url 'settings' %}" class="nav-link">
                   <span class="sidebar-icon">

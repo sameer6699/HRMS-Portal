@@ -1,0 +1,139 @@
+.dropdown-menu {
+  min-width: 250px;
+  max-width: 250px;
+}
+
+#viewsList {
+  max-height: 280px;
+  overflow-y: auto;  
+}
+
+#viewsList a.dropdown-item {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#viewsList::-webkit-scrollbar {
+  width: 6px;
+}
+
+#viewsList::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 3px;
+}
+
+  /* Hover effect for the "All Ticket" box */
+  #dropdownMenuLink:hover {
+    background-color: #f0f0f0; /* Change to any color you'd like */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Light shadow on hover */
+    transition: all 0.3s ease-in-out; /* Smooth transition */
+  }
+
+/* Style for the demo ticket */
+.demo-ticket {
+  width: 100%; /* Set the width to 100% (can be adjusted as needed) */
+  border: 1px solid #d1d1d1; /* Add border with light color */
+  border-radius: 8px; /* Rounded corners */
+  padding: 12px; /* Add padding inside the div */
+  transition: all 0.3s ease; /* Smooth transition for hover effect */
+}
+
+/* Hover effect */
+.demo-ticket:hover {
+  border-color: #007bff; /* Change border color on hover */
+  background-color: #f0f8ff; /* Light blue background on hover */
+  cursor: pointer; /* Change cursor to pointer */
+}
+
+
+.user-info-card {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px 15px;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.user-info-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  background-color: #ffffff;
+}
+
+.user-icon {
+  width: 40px;
+  height: 40px;
+  background-color: #e9ecef;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  color: #555;
+  transition: background-color 0.3s ease;
+}
+
+.user-info-card:hover .user-icon {
+  background-color: #d6d8db;
+}
+
+.user-details {
+  margin-left: 15px;
+  color: #333;
+}
+
+.user-details strong {
+  font-size: 16px;
+}
+
+.user-details small {
+  color: #777;
+  font-size: 13px;
+}
+
+.user-circle {
+  width: 40px;
+  height: 40px;
+  background-color: #ddd;
+  color: #333;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.spaced-card {
+  margin-bottom: 10px;
+}
+
+#statusDropdown {
+  background-color: transparent;
+  border: none;
+  color: #333;
+  font-weight: bold;
+}
+
+#statusDropdown:hover {
+  cursor: pointer;
+}
+
+#statusDropdown .dropdown-menu .dropdown-item {
+  font-size: 14px;
+}
+
+/* Change color of 'Open' option */
+#statusText {
+  color: red;
+}
+
+/* For the icon size and position */
+#dropdownIcon {
+  font-size: 16px;
+  transition: transform 0.3s ease; /* Smooth transition */
+}

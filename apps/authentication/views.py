@@ -25,19 +25,15 @@ from email.header import decode_header
 import requests
 import uuid
 
-# user Name :- Sameer_Jadhav
-# Password :- sameer@6699
 
-# Load environment variables from .env file
+
+
 load_dotenv()
-
-# Retrieve MongoDB credentials from .env file
 MONGO_URI = os.getenv("MONGO_URI")
 MONGO_DB_NAME = os.getenv("MONGO_DB_NAME")
 MONGODB_USER = os.getenv("MONGODB_USER")
 MONGODB_PASS = os.getenv("MONGODB_PASS")
 
-# MongoDB Connection using the retrieved credentials
 client = pymongo.MongoClient(MONGO_URI)
 db = client[MONGO_DB_NAME]
 user_collection = db['coll_register_user']
@@ -182,8 +178,8 @@ def add_user_data(request):
             # Prepare Data to Insert
             user_data = {
                 "userID": userID,
-                "firstName": firstName,   # New Field
-                "lastName": lastName,     # New Field
+                "firstName": firstName,   
+                "lastName": lastName,     
                 "userName": userName,
                 "email": email,
                 "mobileNo": mobileNo,
@@ -192,6 +188,7 @@ def add_user_data(request):
                 "password": hashed_password.decode("utf-8"),
                 "created_at": current_date,
                 "created_time": current_time,
+                "status": "Active"
             }
 
             # Insert data into MongoDB
@@ -383,7 +380,8 @@ def modals_view(request):
 def typography_view(request):
     return render(request, 'home/components-typography.html')
 
-
+def detail_tickets_info(request):
+    return render(request, 'home/detail-ticket-info.html')
 
 # MongoDB setup
 client = MongoClient("mongodb://localhost:27017/")
