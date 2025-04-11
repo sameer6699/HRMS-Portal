@@ -25,6 +25,7 @@ urlpatterns = [
     # Main Dashboard Route
     path('helpdesk_dashbaord/', help_desk_portal, name='helpdesk_portal'),
     path('dashboard/', dashboard_view, name='dashboard'),
+    path('toggle-user-status/', toggle_user_status, name='toggle_user_status'),
     path('view-users/', view_users, name='view_users'),  # View User Url
     path('add-user-role/', add_user_role, name='add_user_role'),
 

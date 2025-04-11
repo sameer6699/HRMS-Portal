@@ -56,11 +56,11 @@
   background-color: #f9f9f9;
   transition: all 0.3s ease;
   cursor: pointer;
+  z-index: 100 !important;
 }
 
 .user-info-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transform: translateY(-2px);
   background-color: #ffffff;
 }
 
@@ -136,4 +136,61 @@
 #dropdownIcon {
   font-size: 16px;
   transition: transform 0.3s ease; /* Smooth transition */
+}
+
+
+.dropdown-toggle {
+  font-size: 18px;
+}
+
+.fas.fa-star {
+  color: #f0bc74;
+}
+
+.dropdown-menu {
+  min-width: 300px;
+}
+
+#ticketSearch {
+  width: 100%;
+}
+
+#viewsList {
+  display: none;
+}
+
+#toggleIcon {
+  transition: transform 0.3s ease;
+}
+
+#viewsList.show {
+  display: block;
+}
+
+#toggleIcon.rotate {
+  transform: rotate(180deg);
+}
+
+.list-unstyled {
+  padding-left: 20px;
+}
+
+.hidden {
+  display: none;
+}
+
+.ticket-container {
+  height: 500px;
+  overflow-y: auto;
+}
+
+/* Container for the recent generated tickets */
+.ticket-list-container {
+  height: 400px; /* Fixed height for the scrollable container */
+  overflow-y: auto; /* Allows vertical scrolling */
+}
+
+/* Optional styling for the individual ticket cards */
+.user-info-card {
+  margin-bottom: 10px;
 }

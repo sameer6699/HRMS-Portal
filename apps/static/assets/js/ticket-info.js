@@ -45,3 +45,4 @@ function toggleDropdownIcon() {
         dropdownIcon.classList.add('bi-chevron-down');
     }
 }
+

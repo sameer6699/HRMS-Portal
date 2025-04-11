@@ -1,0 +1,9 @@
+.swal2-confirm.swal2-styled.swal2-default-outline {
+  background-color: #f3c78e !important;
+  color: #000 !important;  /* Optional: Text color for better visibility */
+  border: none !important; /* Optional: Remove border */
+}
+
+.swal2-confirm.swal2-styled.swal2-default-outline:hover {
+  background-color: #e5b976 !important;  /* Slightly darker on hover */
+}

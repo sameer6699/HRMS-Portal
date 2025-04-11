@@ -147,8 +147,8 @@ def add_user_data(request):
 
             # Extract user data
             userID = request.POST.get("userID")
-            firstName = request.POST.get("firstName")  # New Field
-            lastName = request.POST.get("lastName")    # New Field
+            firstName = request.POST.get("firstName")  
+            lastName = request.POST.get("lastName")    
             userName = request.POST.get("userName")
             email = request.POST.get("email")
             mobileNo = request.POST.get("mobileNo")
@@ -217,7 +217,6 @@ def user_list():
     users_cursor = coll_user.find()
 
     user_list = []
-    print("List of Users", user_list)
     for user in users_cursor:
         user_created_at_str = user.get('created_at')
 
@@ -239,7 +238,9 @@ def user_list():
             'mobileNo': user.get('mobileNo'),
             'userRole': user_roles,  # Now it's a list of roles
             'department': user.get('department'),
-            'created_at': user_created_at
+            'created_at': user_created_at,
+            'Status': user.get('status'),
+            'created_time': user.get('created_time')
         }
         user_list.append(user_data)
     
@@ -272,6 +273,29 @@ def view_users(request):
         users = paginator.page(paginator.num_pages)
 
     return render(request, 'home/view-user.html', {'ListUser': users})
+
+def toggle_user_status(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user_id')
+
+        client = MongoClient("mongodb://localhost:27017/")
+        db = client["CRM_Tickit_Management_System"]
+        coll_user = db["coll_add_user"]
+
+        user = coll_user.find_one({'_id': ObjectId(user_id)})
+
+        if user:
+            current_status = user.get('status', 'Inactive')
+            new_status = 'Active' if current_status == 'Inactive' else 'Inactive'
+
+            coll_user.update_one(
+                {'_id': ObjectId(user_id)},
+                {'$set': {'status': new_status}}
+            )
+
+            return JsonResponse({'status': 'success', 'new_status': new_status})
+
+        return JsonResponse({'status': 'error', 'message': 'User not found'})
 
 client = MongoClient('mongodb://localhost:27017')  
 db = client['CRM_Tickit_Management_System']  

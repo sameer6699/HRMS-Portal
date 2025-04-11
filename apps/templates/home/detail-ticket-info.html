@@ -7,205 +7,420 @@
 {% block content %}
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 <div class="py-4 d-flex justify-content-start align-items-center gap-2">
-  <div class="dropdown">
-    <a class="dropdown-toggle text-dark text-decoration-none d-flex align-items-center p-2 border rounded" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 18px;">
-      <i class="fas fa-star me-2" style="color: #f0bc74;"></i> 
-      Tickets Filter
-    </a>
-    <ul class="dropdown-menu p-3" aria-labelledby="dropdownMenuLink" style="min-width: 300px;">
-      <!-- Search -->
-      <li>
-        <input type="text" class="form-control mb-2" id="ticketSearch" placeholder="Search Ticket...">
-      </li>
-      <!-- Started View -->
-      <li class="dropdown-header text-muted fw-bold">Filtered View</li>
-      <!-- All Views With Toggle Effect -->
-      <li>
-        <a href="javascript:void(0);" class="dropdown-item d-flex justify-content-between align-items-center" id="toggleViews">
-          All Views
-          <i class="bi bi-chevron-down" id="toggleIcon"></i>
-        </a>
-
-        <ul class="list-unstyled mt-2 ps-3" id="viewsList" style="display: none;">
-          <li><a class="dropdown-item" href="#">Closed Ticket</a></li>
-          <li><a class="dropdown-item" href="#">Custom Responded Tickets</a></li>
-          <li><a class="dropdown-item" href="#">Missed Ticket</a></li>
-          <li><a class="dropdown-item" href="#">My Ticket</a></li>
-          <li><a class="dropdown-item" href="#">My On Hold Ticket</a></li>
-          <li><a class="dropdown-item" href="#">My Open Ticket</a></li>
-          <li><a class="dropdown-item" href="#">My Overdue Ticket</a></li>
-          <li><a class="dropdown-item" href="#">My Response Overdue Tickets</a></li>
-          <li><a class="dropdown-item" href="#">On Hold Tickets</a></li>
-          <li><a class="dropdown-item" href="#">Open Tickets</a></li>
-          <li><a class="dropdown-item" href="#">Overdue Tickets</a></li>
-          <li><a class="dropdown-item" href="#">Tickets for Review</a></li>
-          <li><a class="dropdown-item" href="#">Spam Tickets</a></li>
-          <li><a class="dropdown-item" href="#">Unassigned Tickets</a></li>
-        </ul>
-      </li>
-    </ul>
+    <div class="dropdown">
+      <a class="dropdown-toggle text-dark text-decoration-none d-flex align-items-center p-2 border rounded" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-star me-2"></i> 
+        Tickets Filter
+      </a>
+      <ul class="dropdown-menu p-3" aria-labelledby="dropdownMenuLink">
+        <!-- Search -->
+        <li>
+          <input type="text" class="form-control mb-2" id="ticketSearch" placeholder="Search Ticket...">
+        </li>
+        <!-- Started View -->
+        <li class="dropdown-header text-muted fw-bold">Filtered View</li>
+        <!-- All Views With Toggle Effect -->
+        <li>
+          <a href="javascript:void(0);" class="dropdown-item d-flex justify-content-between align-items-center" id="toggleViews">
+            All Views
+            <i class="bi bi-chevron-down" id="toggleIcon"></i>
+          </a>
+  
+          <ul class="list-unstyled mt-2 ps-3 hidden" id="viewsList">
+            <li><a class="dropdown-item" href="#">Closed Ticket</a></li>
+            <li><a class="dropdown-item" href="#">Custom Responded Tickets</a></li>
+            <li><a class="dropdown-item" href="#">Missed Ticket</a></li>
+            <li><a class="dropdown-item" href="#">My Ticket</a></li>
+            <li><a class="dropdown-item" href="#">My On Hold Ticket</a></li>
+            <li><a class="dropdown-item" href="#">My Open Ticket</a></li>
+            <li><a class="dropdown-item" href="#">My Overdue Ticket</a></li>
+            <li><a class="dropdown-item" href="#">My Response Overdue Tickets</a></li>
+            <li><a class="dropdown-item" href="#">On Hold Tickets</a></li>
+            <li><a class="dropdown-item" href="#">Open Tickets</a></li>
+            <li><a class="dropdown-item" href="#">Overdue Tickets</a></li>
+            <li><a class="dropdown-item" href="#">Tickets for Review</a></li>
+            <li><a class="dropdown-item" href="#">Spam Tickets</a></li>
+            <li><a class="dropdown-item" href="#">Unassigned Tickets</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
   </div>
-</div>
 </div>
     <div class="row">
         <div class="col-12 mb-4">
             <div class="card border-0 shadow">
                 <div class="card-header d-sm-flex flex-row align-items-center flex-0">
                     <div class="d-block mb-3 mb-sm-0">
-                        <div class="fs-5 fw-normal mb-2">All Recived Ticket</div>
+                        <div class="fs-5 fw-normal mb-2">All Received Ticket</div>
                     </div>
                 </div>
                 <div>
-                  <div class="card border-0 shadow components-section">
-                    <div class="card-body">
-                        <div class="row">
+                    <div class="card border-0 shadow components-section">
+                        <div class="card-body">
                             <div class="row">
                                 <div class="col-lg-12 col-md-12 mb-4">
-                                  <label for="userID">Recent Generated Tickets</label>
-                                  <!-- First Ticket -->
-                                  <div class="user-info-card spaced-card d-flex justify-content-between align-items-center">
-                                      <div class="d-flex align-items-center">
-                                          <div class="user-icon me-3"><i class="fa fa-envelope"></i></div>
-                                          <div class="user-details">
-                                              <strong>Sameer Jadhav</strong><br>
-                                              <small>#101 
-                                                  <span style="font-size: 10px; margin: 0 5px;">●</span>Sameer 
-                                                  <span style="font-size: 10px; margin: 0 5px;">●</span>Sameer Prashat Jadhav 
-                                                  <span style="font-size: 10px; margin: 0 5px;">●</span>sameer@example.com
-                                              </small>
-                                          </div>
-                                      </div>
-                                      <div class="d-flex align-items-center justify-content-start">
-                                          <div class="dropdown me-3" style="position: relative; z-index: 10;">
-                                              <span class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" onclick="toggleDropdownIcon(1)">
-                                                  <span id="statusText1">Open</span>
-                                              </span>
-                                              <ul class="dropdown-menu" aria-labelledby="statusText1">
-                                                  <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Open')"><span class="status-color red">Open</span></a></li>
-                                                  <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'On Hold')"><span class="status-color orange">On Hold</span></a></li>
-                                                  <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Escalated')"><span class="status-color blue">Escalated</span></a></li>
-                                                  <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Closed')"><span class="status-color green">Closed</span></a></li>
-                                              </ul>
-                                          </div>
-                                          <div class="user-circle"> SJ </div>
-                                      </div>
-                                  </div>
-                                  <!-- Second Ticket -->
-                                  <div class="user-info-card spaced-card d-flex justify-content-between align-items-center">
-                                      <div class="d-flex align-items-center">
-                                          <div class="user-icon me-3"><i class="fa fa-envelope"></i></div>
-                                          <div class="user-details">
-                                              <strong>Sameer Jadhav</strong><br>
-                                              <small>#101 
-                                                  <span style="font-size: 10px; margin: 0 5px;">●</span>Sameer 
-                                                  <span style="font-size: 10px; margin: 0 5px;">●</span>Sameer Prashat Jadhav 
-                                                  <span style="font-size: 10px; margin: 0 5px;">●</span>sameer@example.com
-                                              </small>
-                                          </div>
-                                      </div>
-                                      <div class="d-flex align-items-center justify-content-start">
-                                          <div class="dropdown me-3" style="position: relative; z-index: 10;">
-                                              <span class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" onclick="toggleDropdownIcon(2)">
-                                                  <span id="statusText2">Open</span>
-                                              </span>
-                                              <ul class="dropdown-menu" aria-labelledby="statusText2">
-                                                  <li><a class="dropdown-item" href="#" onclick="setStatus(2, 'Open')"><span class="status-color red">Open</span></a></li>
-                                                  <li><a class="dropdown-item" href="#" onclick="setStatus(2, 'On Hold')"><span class="status-color orange">On Hold</span></a></li>
-                                                  <li><a class="dropdown-item" href="#" onclick="setStatus(2, 'Escalated')"><span class="status-color blue">Escalated</span></a></li>
-                                                  <li><a class="dropdown-item" href="#" onclick="setStatus(2, 'Closed')"><span class="status-color green">Closed</span></a></li>
-                                              </ul>
-                                          </div>
-                                          <div class="user-circle"> SJ </div>
-                                      </div>
-                                  </div>
-                                  <!-- Second Ticket -->
-                                  <div class="user-info-card spaced-card d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <div class="user-icon me-3"><i class="fa fa-envelope"></i></div>
-                                        <div class="user-details">
-                                            <strong>Sameer Jadhav</strong><br>
-                                            <small>#101 
-                                                <span style="font-size: 10px; margin: 0 5px;">●</span>Sameer 
-                                                <span style="font-size: 10px; margin: 0 5px;">●</span>Sameer Prashat Jadhav 
-                                                <span style="font-size: 10px; margin: 0 5px;">●</span>sameer@example.com
-                                            </small>
+                                    <label for="userID">Recent Generated Tickets</label>
+                                    <!-- Container for tickets with scrollable functionality -->
+                                    <div class="ticket-list-container">
+                                        <!-- First Ticket -->
+                                        <div class="user-info-card spaced-card d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-icon me-3"><i class="fa fa-envelope"></i></div>
+                                                <div class="user-details">
+                                                    <strong>Sameer Jadhav</strong><br>
+                                                    <small>#101 
+                                                        <span class="dot">●</span>Sameer 
+                                                        <span class="dot">●</span>Sameer Prashat Jadhav 
+                                                        <span class="dot">●</span>sameer@example.com
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-start">
+                                                <div class="dropdown me-3 dropdown-custom">
+                                                    <span class="dropdown-toggle" data-bs-toggle="dropdown" role="button" onclick="toggleDropdownIcon(1)">
+                                                        <span id="statusText1">Open</span>
+                                                    </span>
+                                                    <ul class="dropdown-menu" aria-labelledby="statusText1">
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Open')"><span class="status-color red">Open</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'On Hold')"><span class="status-color orange">On Hold</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Escalated')"><span class="status-color blue">Escalated</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Closed')"><span class="status-color green">Closed</span></a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="user-circle"> SJ </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="d-flex align-items-center justify-content-start">
-                                        <div class="dropdown me-3" style="position: relative; z-index: 10;">
-                                            <span class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" onclick="toggleDropdownIcon(2)">
-                                                <span id="statusText2">Open</span>
-                                            </span>
-                                            <ul class="dropdown-menu" aria-labelledby="statusText2">
-                                                <li><a class="dropdown-item" href="#" onclick="setStatus(2, 'Open')"><span class="status-color red">Open</span></a></li>
-                                                <li><a class="dropdown-item" href="#" onclick="setStatus(2, 'On Hold')"><span class="status-color orange">On Hold</span></a></li>
-                                                <li><a class="dropdown-item" href="#" onclick="setStatus(2, 'Escalated')"><span class="status-color blue">Escalated</span></a></li>
-                                                <li><a class="dropdown-item" href="#" onclick="setStatus(2, 'Closed')"><span class="status-color green">Closed</span></a></li>
-                                            </ul>
+                                        <div class="user-info-card spaced-card d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-icon me-3"><i class="fa fa-envelope"></i></div>
+                                                <div class="user-details">
+                                                    <strong>Sameer Jadhav</strong><br>
+                                                    <small>#101 
+                                                        <span class="dot">●</span>Sameer 
+                                                        <span class="dot">●</span>Sameer Prashat Jadhav 
+                                                        <span class="dot">●</span>sameer@example.com
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-start">
+                                                <div class="dropdown me-3 dropdown-custom">
+                                                    <span class="dropdown-toggle" data-bs-toggle="dropdown" role="button" onclick="toggleDropdownIcon(1)">
+                                                        <span id="statusText1">Open</span>
+                                                    </span>
+                                                    <ul class="dropdown-menu" aria-labelledby="statusText1">
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Open')"><span class="status-color red">Open</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'On Hold')"><span class="status-color orange">On Hold</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Escalated')"><span class="status-color blue">Escalated</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Closed')"><span class="status-color green">Closed</span></a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="user-circle"> SJ </div>
+                                            </div>
                                         </div>
-                                        <div class="user-circle"> SJ </div>
+                                        <div class="user-info-card spaced-card d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-icon me-3"><i class="fa fa-envelope"></i></div>
+                                                <div class="user-details">
+                                                    <strong>Sameer Jadhav</strong><br>
+                                                    <small>#101 
+                                                        <span class="dot">●</span>Sameer 
+                                                        <span class="dot">●</span>Sameer Prashat Jadhav 
+                                                        <span class="dot">●</span>sameer@example.com
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-start">
+                                                <div class="dropdown me-3 dropdown-custom">
+                                                    <span class="dropdown-toggle" data-bs-toggle="dropdown" role="button" onclick="toggleDropdownIcon(1)">
+                                                        <span id="statusText1">Open</span>
+                                                    </span>
+                                                    <ul class="dropdown-menu" aria-labelledby="statusText1">
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Open')"><span class="status-color red">Open</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'On Hold')"><span class="status-color orange">On Hold</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Escalated')"><span class="status-color blue">Escalated</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Closed')"><span class="status-color green">Closed</span></a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="user-circle"> SJ </div>
+                                            </div>
+                                        </div>
+                                        <div class="user-info-card spaced-card d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-icon me-3"><i class="fa fa-envelope"></i></div>
+                                                <div class="user-details">
+                                                    <strong>Sameer Jadhav</strong><br>
+                                                    <small>#101 
+                                                        <span class="dot">●</span>Sameer 
+                                                        <span class="dot">●</span>Sameer Prashat Jadhav 
+                                                        <span class="dot">●</span>sameer@example.com
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-start">
+                                                <div class="dropdown me-3 dropdown-custom">
+                                                    <span class="dropdown-toggle" data-bs-toggle="dropdown" role="button" onclick="toggleDropdownIcon(1)">
+                                                        <span id="statusText1">Open</span>
+                                                    </span>
+                                                    <ul class="dropdown-menu" aria-labelledby="statusText1">
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Open')"><span class="status-color red">Open</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'On Hold')"><span class="status-color orange">On Hold</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Escalated')"><span class="status-color blue">Escalated</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Closed')"><span class="status-color green">Closed</span></a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="user-circle"> SJ </div>
+                                            </div>
+                                        </div>
+                                        <div class="user-info-card spaced-card d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-icon me-3"><i class="fa fa-envelope"></i></div>
+                                                <div class="user-details">
+                                                    <strong>Sameer Jadhav</strong><br>
+                                                    <small>#101 
+                                                        <span class="dot">●</span>Sameer 
+                                                        <span class="dot">●</span>Sameer Prashat Jadhav 
+                                                        <span class="dot">●</span>sameer@example.com
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-start">
+                                                <div class="dropdown me-3 dropdown-custom">
+                                                    <span class="dropdown-toggle" data-bs-toggle="dropdown" role="button" onclick="toggleDropdownIcon(1)">
+                                                        <span id="statusText1">Open</span>
+                                                    </span>
+                                                    <ul class="dropdown-menu" aria-labelledby="statusText1">
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Open')"><span class="status-color red">Open</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'On Hold')"><span class="status-color orange">On Hold</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Escalated')"><span class="status-color blue">Escalated</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Closed')"><span class="status-color green">Closed</span></a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="user-circle"> SJ </div>
+                                            </div>
+                                        </div>
+                                        <div class="user-info-card spaced-card d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-icon me-3"><i class="fa fa-envelope"></i></div>
+                                                <div class="user-details">
+                                                    <strong>Sameer Jadhav</strong><br>
+                                                    <small>#101 
+                                                        <span class="dot">●</span>Sameer 
+                                                        <span class="dot">●</span>Sameer Prashat Jadhav 
+                                                        <span class="dot">●</span>sameer@example.com
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-start">
+                                                <div class="dropdown me-3 dropdown-custom">
+                                                    <span class="dropdown-toggle" data-bs-toggle="dropdown" role="button" onclick="toggleDropdownIcon(1)">
+                                                        <span id="statusText1">Open</span>
+                                                    </span>
+                                                    <ul class="dropdown-menu" aria-labelledby="statusText1">
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Open')"><span class="status-color red">Open</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'On Hold')"><span class="status-color orange">On Hold</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Escalated')"><span class="status-color blue">Escalated</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Closed')"><span class="status-color green">Closed</span></a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="user-circle"> SJ </div>
+                                            </div>
+                                        </div>
+                                        <div class="user-info-card spaced-card d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-icon me-3"><i class="fa fa-envelope"></i></div>
+                                                <div class="user-details">
+                                                    <strong>Sameer Jadhav</strong><br>
+                                                    <small>#101 
+                                                        <span class="dot">●</span>Sameer 
+                                                        <span class="dot">●</span>Sameer Prashat Jadhav 
+                                                        <span class="dot">●</span>sameer@example.com
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-start">
+                                                <div class="dropdown me-3 dropdown-custom">
+                                                    <span class="dropdown-toggle" data-bs-toggle="dropdown" role="button" onclick="toggleDropdownIcon(1)">
+                                                        <span id="statusText1">Open</span>
+                                                    </span>
+                                                    <ul class="dropdown-menu" aria-labelledby="statusText1">
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Open')"><span class="status-color red">Open</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'On Hold')"><span class="status-color orange">On Hold</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Escalated')"><span class="status-color blue">Escalated</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Closed')"><span class="status-color green">Closed</span></a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="user-circle"> SJ </div>
+                                            </div>
+                                        </div>
+                                        <div class="user-info-card spaced-card d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-icon me-3"><i class="fa fa-envelope"></i></div>
+                                                <div class="user-details">
+                                                    <strong>Sameer Jadhav</strong><br>
+                                                    <small>#101 
+                                                        <span class="dot">●</span>Sameer 
+                                                        <span class="dot">●</span>Sameer Prashat Jadhav 
+                                                        <span class="dot">●</span>sameer@example.com
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-start">
+                                                <div class="dropdown me-3 dropdown-custom">
+                                                    <span class="dropdown-toggle" data-bs-toggle="dropdown" role="button" onclick="toggleDropdownIcon(1)">
+                                                        <span id="statusText1">Open</span>
+                                                    </span>
+                                                    <ul class="dropdown-menu" aria-labelledby="statusText1">
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Open')"><span class="status-color red">Open</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'On Hold')"><span class="status-color orange">On Hold</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Escalated')"><span class="status-color blue">Escalated</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Closed')"><span class="status-color green">Closed</span></a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="user-circle"> SJ </div>
+                                            </div>
+                                        </div>
+                                        <div class="user-info-card spaced-card d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-icon me-3"><i class="fa fa-envelope"></i></div>
+                                                <div class="user-details">
+                                                    <strong>Sameer Jadhav</strong><br>
+                                                    <small>#101 
+                                                        <span class="dot">●</span>Sameer 
+                                                        <span class="dot">●</span>Sameer Prashat Jadhav 
+                                                        <span class="dot">●</span>sameer@example.com
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-start">
+                                                <div class="dropdown me-3 dropdown-custom">
+                                                    <span class="dropdown-toggle" data-bs-toggle="dropdown" role="button" onclick="toggleDropdownIcon(1)">
+                                                        <span id="statusText1">Open</span>
+                                                    </span>
+                                                    <ul class="dropdown-menu" aria-labelledby="statusText1">
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Open')"><span class="status-color red">Open</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'On Hold')"><span class="status-color orange">On Hold</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Escalated')"><span class="status-color blue">Escalated</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Closed')"><span class="status-color green">Closed</span></a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="user-circle"> SJ </div>
+                                            </div>
+                                        </div>
+                                        <div class="user-info-card spaced-card d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-icon me-3"><i class="fa fa-envelope"></i></div>
+                                                <div class="user-details">
+                                                    <strong>Sameer Jadhav</strong><br>
+                                                    <small>#101 
+                                                        <span class="dot">●</span>Sameer 
+                                                        <span class="dot">●</span>Sameer Prashat Jadhav 
+                                                        <span class="dot">●</span>sameer@example.com
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-start">
+                                                <div class="dropdown me-3 dropdown-custom">
+                                                    <span class="dropdown-toggle" data-bs-toggle="dropdown" role="button" onclick="toggleDropdownIcon(1)">
+                                                        <span id="statusText1">Open</span>
+                                                    </span>
+                                                    <ul class="dropdown-menu" aria-labelledby="statusText1">
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Open')"><span class="status-color red">Open</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'On Hold')"><span class="status-color orange">On Hold</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Escalated')"><span class="status-color blue">Escalated</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Closed')"><span class="status-color green">Closed</span></a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="user-circle"> SJ </div>
+                                            </div>
+                                        </div>
+                                        <div class="user-info-card spaced-card d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-icon me-3"><i class="fa fa-envelope"></i></div>
+                                                <div class="user-details">
+                                                    <strong>Sameer Jadhav</strong><br>
+                                                    <small>#101 
+                                                        <span class="dot">●</span>Sameer 
+                                                        <span class="dot">●</span>Sameer Prashat Jadhav 
+                                                        <span class="dot">●</span>sameer@example.com
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-start">
+                                                <div class="dropdown me-3 dropdown-custom">
+                                                    <span class="dropdown-toggle" data-bs-toggle="dropdown" role="button" onclick="toggleDropdownIcon(1)">
+                                                        <span id="statusText1">Open</span>
+                                                    </span>
+                                                    <ul class="dropdown-menu" aria-labelledby="statusText1">
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Open')"><span class="status-color red">Open</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'On Hold')"><span class="status-color orange">On Hold</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Escalated')"><span class="status-color blue">Escalated</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Closed')"><span class="status-color green">Closed</span></a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="user-circle"> SJ </div>
+                                            </div>
+                                        </div>
+                                        <div class="user-info-card spaced-card d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-icon me-3"><i class="fa fa-envelope"></i></div>
+                                                <div class="user-details">
+                                                    <strong>Sameer Jadhav</strong><br>
+                                                    <small>#101 
+                                                        <span class="dot">●</span>Sameer 
+                                                        <span class="dot">●</span>Sameer Prashat Jadhav 
+                                                        <span class="dot">●</span>sameer@example.com
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-start">
+                                                <div class="dropdown me-3 dropdown-custom">
+                                                    <span class="dropdown-toggle" data-bs-toggle="dropdown" role="button" onclick="toggleDropdownIcon(1)">
+                                                        <span id="statusText1">Open</span>
+                                                    </span>
+                                                    <ul class="dropdown-menu" aria-labelledby="statusText1">
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Open')"><span class="status-color red">Open</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'On Hold')"><span class="status-color orange">On Hold</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Escalated')"><span class="status-color blue">Escalated</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Closed')"><span class="status-color green">Closed</span></a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="user-circle"> SJ </div>
+                                            </div>
+                                        </div>
+                                        <div class="user-info-card spaced-card d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-icon me-3"><i class="fa fa-envelope"></i></div>
+                                                <div class="user-details">
+                                                    <strong>Sameer Jadhav</strong><br>
+                                                    <small>#101 
+                                                        <span class="dot">●</span>Sameer 
+                                                        <span class="dot">●</span>Sameer Prashat Jadhav 
+                                                        <span class="dot">●</span>sameer@example.com
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-start">
+                                                <div class="dropdown me-3 dropdown-custom">
+                                                    <span class="dropdown-toggle" data-bs-toggle="dropdown" role="button" onclick="toggleDropdownIcon(1)">
+                                                        <span id="statusText1">Open</span>
+                                                    </span>
+                                                    <ul class="dropdown-menu" aria-labelledby="statusText1">
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Open')"><span class="status-color red">Open</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'On Hold')"><span class="status-color orange">On Hold</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Escalated')"><span class="status-color blue">Escalated</span></a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="setStatus(1, 'Closed')"><span class="status-color green">Closed</span></a></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="user-circle"> SJ </div>
+                                            </div>
+                                        </div>
+                                        <!-- Example: Copy-paste the above <div class="user-info-card"> block for more tickets -->
                                     </div>
-                                </div>
-                                <div class="user-info-card spaced-card d-flex justify-content-between align-items-center">
-                                  <div class="d-flex align-items-center">
-                                      <div class="user-icon me-3"><i class="fa fa-envelope"></i></div>
-                                      <div class="user-details">
-                                          <strong>Sameer Jadhav</strong><br>
-                                          <small>#101 
-                                              <span style="font-size: 10px; margin: 0 5px;">●</span>Sameer 
-                                              <span style="font-size: 10px; margin: 0 5px;">●</span>Sameer Prashat Jadhav 
-                                              <span style="font-size: 10px; margin: 0 5px;">●</span>sameer@example.com
-                                          </small>
-                                      </div>
-                                  </div>
-                                  <div class="d-flex align-items-center justify-content-start">
-                                      <div class="dropdown me-3" style="position: relative; z-index: 10;">
-                                          <span class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" onclick="toggleDropdownIcon(2)">
-                                              <span id="statusText2">Open</span>
-                                          </span>
-                                          <ul class="dropdown-menu" aria-labelledby="statusText2">
-                                              <li><a class="dropdown-item" href="#" onclick="setStatus(2, 'Open')"><span class="status-color red">Open</span></a></li>
-                                              <li><a class="dropdown-item" href="#" onclick="setStatus(2, 'On Hold')"><span class="status-color orange">On Hold</span></a></li>
-                                              <li><a class="dropdown-item" href="#" onclick="setStatus(2, 'Escalated')"><span class="status-color blue">Escalated</span></a></li>
-                                              <li><a class="dropdown-item" href="#" onclick="setStatus(2, 'Closed')"><span class="status-color green">Closed</span></a></li>
-                                          </ul>
-                                      </div>
-                                      <div class="user-circle"> SJ </div>
-                                  </div>
-                              </div>
-                              <div class="user-info-card spaced-card d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-                                    <div class="user-icon me-3"><i class="fa fa-envelope"></i></div>
-                                    <div class="user-details">
-                                        <strong>Sameer Jadhav</strong><br>
-                                        <small>#101 
-                                            <span style="font-size: 10px; margin: 0 5px;">●</span>Sameer 
-                                            <span style="font-size: 10px; margin: 0 5px;">●</span>Sameer Prashat Jadhav 
-                                            <span style="font-size: 10px; margin: 0 5px;">●</span>sameer@example.com
-                                        </small>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center justify-content-start">
-                                    <div class="dropdown me-3" style="position: relative; z-index: 10;">
-                                        <span class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" onclick="toggleDropdownIcon(2)">
-                                            <span id="statusText2">Open</span>
-                                        </span>
-                                        <ul class="dropdown-menu" aria-labelledby="statusText2">
-                                            <li><a class="dropdown-item" href="#" onclick="setStatus(2, 'Open')"><span class="status-color red">Open</span></a></li>
-                                            <li><a class="dropdown-item" href="#" onclick="setStatus(2, 'On Hold')"><span class="status-color orange">On Hold</span></a></li>
-                                            <li><a class="dropdown-item" href="#" onclick="setStatus(2, 'Escalated')"><span class="status-color blue">Escalated</span></a></li>
-                                            <li><a class="dropdown-item" href="#" onclick="setStatus(2, 'Closed')"><span class="status-color green">Closed</span></a></li>
-                                        </ul>
-                                    </div>
-                                    <div class="user-circle"> SJ </div>
                                 </div>
                             </div>
-                                  <!-- Repeat the above structure for other tickets... -->
-                                </div>
-                              </div>
-                         </div>
-                      </div>
-                  </div>          
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
