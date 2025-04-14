@@ -19,13 +19,12 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 import os
+import bcrypt
 import imaplib
 import email
 from email.header import decode_header
 import requests
 import uuid
-
-
 
 
 load_dotenv()
@@ -72,6 +71,8 @@ def login_view(request):
             msg = "User does not exist. Please register first."
 
     return render(request, "accounts/login.html", {"msg": msg})
+
+
 
 def logout_view(request):
     print("Logout function called")
@@ -122,8 +123,63 @@ def register_user(request):
     return render(request, "accounts/register.html", {"msg": msg, "success": success})
 
 # Function to handle user login in section
+@csrf_exempt
 def user_login(request):
-    return render(request, 'accounts/user_login.html')
+    msg = None
+    print(">>> user_login view called.")
+
+    if request.method == "POST":
+        user_role = request.POST.get("userRole")
+        username = request.POST.get("username", "").strip()
+        password = request.POST.get("password", "").strip()
+
+        print(f">>> Received -> Role: {user_role}, Username: {username}")
+
+        if not user_role or not username or not password:
+            msg = "All fields are required."
+            return render(request, "accounts/user_login.html", {"msg": msg})
+
+        try:
+            client = MongoClient("mongodb://localhost:27017/")
+            db = client["CRM_Tickit_Management_System"]
+            user_collection = db["coll_add_user"]
+            print(">>> Connected to MongoDB.")
+
+            user = user_collection.find_one({"userName": username})
+            print(f">>> User fetched: {user}")
+
+            if user:
+                stored_roles = user.get("userRole", "")
+                stored_password = user.get("password", "")
+                status = user.get("status", "")
+
+                if status.lower() != "active":
+                    msg = "Your account is inactive. Please contact admin."
+                    return render(request, "accounts/user_login.html", {"msg": msg})
+
+                role_list = [role.strip().lower() for role in stored_roles.split(",")]
+                if user_role.strip().lower() not in role_list:
+                    msg = "Selected role does not match user roles."
+                    return render(request, "accounts/user_login.html", {"msg": msg})
+
+                if bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
+                    request.session['user_id'] = user.get("userID")
+                    request.session['userName'] = user.get("userName")
+                    request.session['userRole'] = user_role
+
+                    print(">>> Login successful. Redirecting to dashboard.")
+                    return redirect("helpdesk_portal")
+                else:
+                    msg = "Incorrect password."
+            else:
+                msg = "Username not found."
+
+        except Exception as e:
+            msg = "Something went wrong during login."
+            print(f">>> Exception: {e}")
+
+    return render(request, "accounts/user_login.html", {"msg": msg})
+
 
 # Here in this rote user is redirected to the dashboard page after login.
 def help_desk_portal(request):

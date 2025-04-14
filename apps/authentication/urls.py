@@ -20,6 +20,8 @@ urlpatterns = [
     path('404/', page_404_view, name='page_404'),
     path('500/', page_500_view, name='page_500'),
 
+    # user Login Routes and redirection of the page
+    
 
     # Path for Dashboard View.
     # Main Dashboard Route
