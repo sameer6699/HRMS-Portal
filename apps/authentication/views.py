@@ -164,11 +164,8 @@ def user_login(request):
 
                 if bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
                     request.session['user_id'] = user.get("userID")
-                    request.session['userName'] = user.get("userName")
-                    request.session['userRole'] = user_role
-
                     print(">>> Login successful. Redirecting to dashboard.")
-                    return redirect("helpdesk_portal")
+                    return redirect("helpdesk_portal")  # Redirect to dashboard
                 else:
                     msg = "Incorrect password."
             else:
