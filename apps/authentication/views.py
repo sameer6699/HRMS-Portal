@@ -165,7 +165,7 @@ def user_login(request):
                 if bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
                     request.session['user_id'] = user.get("userID")
                     print(">>> Login successful. Redirecting to dashboard.")
-                    return redirect("helpdesk_portal")  # Redirect to dashboard
+                    return redirect("user_dashboard")  # Redirect to dashboard
                 else:
                     msg = "Incorrect password."
             else:
@@ -177,6 +177,10 @@ def user_login(request):
 
     return render(request, "accounts/user_login.html", {"msg": msg})
 
+def user_dashboard(request):
+    if "user_id" not in request.session:
+        return redirect("/user_login/")  # Redirect to the specific login URL
+    return render(request, 'home/user/user_dashboard.html')  # Load user dashboard
 
 # Here in this rote user is redirected to the dashboard page after login.
 def help_desk_portal(request):
