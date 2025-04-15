@@ -1,0 +1,31 @@
+<!-- templates/auto_reply_email.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Support Ticket Acknowledgement</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f9f9f9; font-family: Arial, sans-serif; font-size: 14px; color: #333;">
+  <div style="max-width: 600px; margin: 30px auto; background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 30px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);">
+    
+    <!-- Header -->
+    <div style="text-align: center; margin-bottom: 20px;">
+      <h2 style="color: #0056b3;">Support Ticket Confirmation</h2>
+    </div>
+
+    <!-- Body -->
+    <div>
+      <p>Dear Customer,</p>
+      <p>Thank you for reaching out to us. We have received your email and created a ticket for you.</p>
+      <p><strong>Your ticket ID is:</strong> {{ ticket_id }}</p>
+      <p>Our team will review your request and get back to you as soon as possible.</p>
+    </div>
+
+    <!-- Footer -->
+    <div style="margin-top: 30px; border-top: 1px solid #e0e0e0; padding-top: 20px; text-align: center;">
+      <p style="margin: 0;">Best regards,<br><strong>Support Team</strong></p>
+      <img src="cid:silver_logo" alt="Company Logo" style="margin-top: 15px; width: 100px; height: auto;" />
+    </div>
+  </div>
+</body>
+</html>

@@ -19,6 +19,7 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 import os
+from jinja2 import Template
 import bcrypt
 import imaplib
 import email
@@ -73,7 +74,6 @@ def login_view(request):
     return render(request, "accounts/login.html", {"msg": msg})
 
 
-
 def logout_view(request):
     print("Logout function called")
     """
@@ -88,7 +88,6 @@ def logout_view(request):
 def register_user(request):
     msg = None
     success = False
-
     if request.method == "POST":
         username = request.POST.get("username")
         email = request.POST.get("email")
@@ -364,13 +363,10 @@ def edit_user(request, id):
         object_id = ObjectId(id)
     except Exception as e:
         return render(request, 'error.html', {'error': f'Invalid ObjectId format: {str(e)}'})
-
     # Query the MongoDB collection directly to find the user by _id
     user = users_collection.find_one({'_id': object_id})
-
     if user is None:
         return render(request, 'error.html', {'error': 'User not found'})
-
     # Return the user details to the edit page
     return render(request, 'home/edit-user.html', {'user': user})
 
@@ -474,60 +470,104 @@ NYLAS_API_KEY = "nyk_v0_DRFB1STRuvQhnfI5ifdBEqDOUAdbqBM2s0efwKVzViso904d8kJQcVJZ
 GRANT_ID = "fb12bcab-f5ac-4902-82e6-7aad79e6046f"
 NYLAS_API_BASE = "https://api.us.nylas.com"
 
-# List of allowed email domains
-ALLOWED_EMAIL_DOMAINS = ["gmail.com", "outlook.com", "yahoo.com"]  # Add more domains as needed
+# Zoho ZeptoMail API configuration
+ZEPTO_API_URL = "https://api.zeptomail.in/v1.1/email"
+ZEPTO_API_KEY = "Zoho-enczapikey PHtE6r1bE7/jjG4poERT4fbqQ8GhY98o+ug1eFNOtIkWX6IBTU0HqIwrwDe2/x9+V/EWQf6ez4tu4L+UuuzTIWfkYGZOCWqyqK3sx/VYSPOZsbq6x00ct14Sc0DeVITocdRq3SPWuNjZNA=="
+SUPPORT_EMAIL = "support@trti-maha.in"
 
 def send_auto_reply(to_email, ticket_id):
-    # Extract the domain part of the email
+    # MongoDB connection (inside function)
+    try:
+        client = MongoClient("mongodb://localhost:27017/")
+        db = client["CRM_Tickit_Management_System"]  
+        ticket_collection = db["email_generated_tickets"]
+    except Exception as mongo_conn_error:
+        print(f"MongoDB connection failed: {mongo_conn_error}")
+        return  # Abort email sending if DB connection is critical
+
+    # (OPTIONAL) Log domain info
     email_domain = to_email.split('@')[-1].lower()
+    print(f"Auto-reply target domain: {email_domain}")
 
-    # Check if the email domain is in the allowed list
-    if email_domain not in ALLOWED_EMAIL_DOMAINS:
-        print(f"Skipping auto-reply for {to_email} as it's not in the allowed domains list.")
-        return
-
-    print(f"Attempting to send auto-reply to {to_email} with Ticket ID: {ticket_id}")
-
-    url = f"{NYLAS_API_BASE}/v3/grants/{GRANT_ID}/messages"
-    headers = {
-        "Accept": "application/json",
-        "Authorization": f"Bearer {NYLAS_API_KEY}",
-        "Content-Type": "application/json",
-    }
-
-    auto_reply_message = f"""
-    Dear Customer,
-
-    Thank you for reaching out to us. We have received your email and created a ticket for you.
-
-    Your ticket ID is: {ticket_id}
-
-    Our team will review your request and get back to you as soon as possible.
-
-    Best regards,
-    Support Team
+    # Email content
+    subject = f"Your Support Ticket Is Generated: {ticket_id}"
+    html_body = f"""
+    <div style="font-family: Arial, sans-serif; font-size: 14px;">
+        <p>Dear Customer,</p>
+        <p>Thank you for reaching out to us. We have received your email and created a ticket for you.</p>
+        <p><strong>Your ticket ID is:</strong> {ticket_id}</p>
+        <p>Our team will review your request and get back to you as soon as possible.</p>
+        <br>
+        <p>Best regards,<br><strong>Support Team</strong></p>
+    </div>
     """
 
-    data = {
-        "subject": f"Your Support Ticket is generated: {ticket_id}",
-        "body": {
-            "content_type": "text/plain",
-            "content": auto_reply_message,
-        },
-        "to": [{"email": to_email}],
-        "from": [{"email": "Sameer.Jadhav@thesilvertech.com"}],  # Replace with your support email
+    # ZeptoMail payload and headers
+    payload = {
+        "from": {"address": SUPPORT_EMAIL},
+        "to": [
+            {
+                "email_address": {
+                    "address": to_email,
+                    "name": "Customer"
+                }
+            }
+        ],
+        "subject": subject,
+        "htmlbody": html_body
     }
 
+    headers = {
+        'accept': "application/json",
+        'content-type': "application/json",
+        'authorization': ZEPTO_API_KEY
+    }
+
+    # Try sending email and updating MongoDB flags
     try:
-        response = requests.post(url, headers=headers, json=data)
-        response.raise_for_status()  # Check if the request was successful
-        print(f"Auto-reply successfully sent to {to_email} with Ticket ID: {ticket_id}")
-        print(f"Response from Nylas: {response.status_code} - {response.text}")
+        response = requests.post(ZEPTO_API_URL, json=payload, headers=headers)
+        response.raise_for_status()
+
+        print(f"Auto-reply successfully sent to {to_email} (Ticket ID: {ticket_id})")
+        print(f"Response Code: {response.status_code} - {response.text}")
+
+        # Update MongoDB document with 3 required fields
+        ticket_collection.update_one(
+            {"ticket_id": ticket_id},
+            {"$set": {
+                "email_acknowledgement_status": "success",
+                "email_send_response_status": response.status_code,
+                "email_acknowledgement_time": datetime.utcnow()
+            }}
+        )
+
     except requests.exceptions.HTTPError as http_err:
-        print(f"HTTP error occurred while sending auto-reply to {to_email}: {http_err}")
-        print(f"Response from Nylas: {response.status_code} - {response.text}")
+        print(f"HTTP Error while sending to {to_email}: {http_err}")
+        print(f"Response: {response.status_code} - {response.text}")
+
+        # Update MongoDB with HTTP error
+        ticket_collection.update_one(
+            {"ticket_id": ticket_id},
+            {"$set": {
+                "email_acknowledgement_status": "http_error",
+                "email_send_response_status": response.status_code,
+                "email_acknowledgement_time": datetime.utcnow()
+            }}
+        )
+
     except Exception as e:
-        print(f"Error occurred while sending auto-reply to {to_email}: {str(e)}")
+        print(f"General error occurred: {str(e)}")
+
+        # Update MongoDB with general error
+        ticket_collection.update_one(
+            {"ticket_id": ticket_id},
+            {"$set": {
+                "email_acknowledgement_status": "general_error",
+                "email_send_response_status": None,
+                "email_acknowledgement_time": datetime.utcnow()
+            }}
+        )
+
 
 def fetch_support_emails_via_nylas():
     print("=" * 90)
@@ -630,7 +670,7 @@ def transactions_view(request):
     ticket_list = list(tickets)
     
     # Set the number of tickets per page
-    tickets_per_page = 10
+    tickets_per_page = 50
     
     # Create a paginator instance
     paginator = Paginator(ticket_list, tickets_per_page)

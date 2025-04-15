@@ -1,0 +1,34 @@
+.table-responsive-scroll {
+  max-height: 500px; 
+  overflow-y: auto;
+}
+
+.table-responsive-scroll thead th {
+  position: sticky;
+  top: 0;
+  background-color: #fff;
+  z-index: 2;
+}
+
+.custom-dropdown-menu {
+  z-index: 100;
+}
+
+/* Container scroll behavior */
+.custom-scroll-container {
+  position: relative;
+  max-height: 500px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+/* Sticky table header */
+.custom-table-header {
+  background-color: #F2F4F6;
+  z-index: 99;
+}
+
+/* Ticket description cell */
+.description-cell {
+  width: 250px !important;
+}

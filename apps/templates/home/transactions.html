@@ -2,24 +2,23 @@
 
 {% block title %} HelpDesk Management Portal {% endblock %} 
 
-<!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}
-
 <style>
-
-    .table-responsive-scroll {
-        max-height: 500px; 
-        overflow-y: auto;
-    }
-
-    .table-responsive-scroll thead th {
-        position: sticky;
-        top: 0;
-        background-color: #fff;
-        z-index: 2;
-    }
+.table-container 
+{
+    position: relative;
+    max-height: 500px;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+.sticky-header {
+    background-color: #F2F4F6;
+    z-index: 99;
+}
+.text-truncate-modal {
+    width: 250px !important;
+}
 </style>
-
 {% endblock stylesheets %}
 
 {% block content %}
@@ -28,9 +27,7 @@
           <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
               <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
                   <li class="breadcrumb-item">
-                    <a href="#">
-                        <i class="fas fa-home icon-xxs"></i>
-                    </a>
+                    <a href="#" title="Home"><i class="fas fa-home icon-xxs"></i> </a>
                   </li>
                   <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
                   <li class="breadcrumb-item active" aria-current="page">All Tickiet Logs</li>
@@ -67,20 +64,25 @@
                     <i class="fas fa-cog icon-sm"></i>
                     <span class="visually-hidden">Toggle Dropdown</span>
                 </button>                
-                  <div class="dropdown-menu dropdown-menu-xs dropdown-menu-end pb-0" style="z-index: 100;">
-                      <span class="small ps-3 fw-bold text-dark">Show</span>
-                      <a class="dropdown-item d-flex align-items-center fw-bold" href="#">10 <svg class="icon icon-xxs ms-auto" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg></a>
-                      <a class="dropdown-item fw-bold" href="#">20</a>
-                      <a class="dropdown-item fw-bold rounded-bottom" href="#">30</a>
-                  </div>
+                <div class="dropdown-menu dropdown-menu-xs dropdown-menu-end pb-0 custom-dropdown-menu">
+                    <span class="small ps-3 fw-bold text-dark">Show</span>
+                    <a class="dropdown-item d-flex align-items-center fw-bold" href="#">
+                        10 
+                        <svg class="icon icon-xxs ms-auto" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                    </a>
+                    <a class="dropdown-item fw-bold" href="#">20</a>
+                    <a class="dropdown-item fw-bold rounded-bottom" href="#">30</a>
+                </div>
               </div>
           </div>
       </div>
   </div>
   <div class="card card-body border-0 shadow table-wrapper table-responsive">
-        <div class="table-container" style="position: relative; max-height: 500px; overflow-y: auto; overflow-x: auto;">
+        <div class="table-container">
             <table class="table table-hover w-100 text-nowrap position-relative">
-                <thead class="sticky-top" style="background-color: #F2F4F6; z-index: 99;">
+                <thead class="sticky-top sticky-header">
                     <tr>
                         <th class="border-gray-200">Ticket ID</th>
                         <th class="border-gray-200">Email</th>
@@ -100,7 +102,7 @@
                                 <td><span class="fw-normal">{{ ticket.email }}</span></td>
                                 <td><span class="fw-normal">{{ ticket.subject }}</span></td>
                                 <td>
-                                    <p class="fw-normal text-truncate" style="width:250px !important;" data-bs-toggle="modal" data-bs-target="#descriptionModal" onclick="openModal(this)" data-hidden="{{ ticket.description }}">
+                                    <p class="fw-normal text-truncate text-truncate-modal" data-bs-toggle="modal" data-bs-target="#descriptionModal" onclick="openModal(this)" data-hidden="{{ ticket.description }}">
                                         {{ ticket.description }}
                                     </p>
                                 </td>
@@ -140,55 +142,66 @@
                 </tbody>
             </table>
         </div>
-      <!-- Pagination controls -->
+        <!-- Pagination controls -->
         <div class="card-footer px-3 border-0 d-flex flex-column flex-lg-row align-items-center justify-content-between">
             <nav aria-label="Page navigation example">
                 <ul class="pagination mb-0">
+
+                    <!-- First and Previous buttons -->
                     {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page=1">First</a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-                    </li>
-                    {% else %}
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#">First</a>
-                    </li>
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#">Previous</a>
-                    </li>
-                    {% endif %}
-
-                    <!-- Page number links -->
-                    {% for num in page_obj.paginator.page_range %}
-                        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1">First</a>
                         </li>
-                    {% endfor %}
-
-                    {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
-                    </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                        </li>
                     {% else %}
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#">Next</a>
-                    </li>
-                    <li class="page-item disabled">
-                        <a class="page-link" href="#">Last</a>
-                    </li>
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">First</a>
+                        </li>
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">Previous</a>
+                        </li>
                     {% endif %}
+
+                    <!-- Page number links with ellipsis logic -->
+                    {% with total_pages=page_obj.paginator.num_pages current=page_obj.number %}
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if num == 1 or num == total_pages or num == current or num == current|add:"1" or num == current|add:"-1" %}
+                                <li class="page-item {% if num == current %}active{% endif %}">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% elif num == current|add:"-2" or num == current|add:"2" %}
+                                <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+                            {% endif %}
+                        {% endfor %}
+                    {% endwith %}
+
+                    <!-- Next and Last buttons -->
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">Next</a>
+                        </li>
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">Last</a>
+                        </li>
+                    {% endif %}
+
                 </ul>
             </nav>
+
+            <!-- Entry summary -->
             <div class="fw-normal small mt-4 mt-lg-0">
                 Showing <b>{{ page_obj.start_index }}</b> to <b>{{ page_obj.end_index }}</b> out of <b>{{ page_obj.paginator.count }}</b> entries
             </div>
-        </div>
-  </div> 
+        </div>       
 <!-- Modal -->
 <div class="modal fade" id="descriptionModal" tabindex="-1" aria-labelledby="descriptionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -207,5 +220,4 @@
     </div>
 </div>
 {% endblock content %}
-{% block javascripts %}
-{% endblock javascripts %}
+{% block javascripts %}{% endblock javascripts %}
