@@ -26,6 +26,10 @@ import email
 from email.header import decode_header
 import requests
 import uuid
+import re
+from apscheduler.schedulers.background import BackgroundScheduler
+import time
+
 
 
 load_dotenv()
@@ -476,20 +480,47 @@ ZEPTO_API_KEY = "Zoho-enczapikey PHtE6r1bE7/jjG4poERT4fbqQ8GhY98o+ug1eFNOtIkWX6I
 SUPPORT_EMAIL = "support@trti-maha.in"
 
 def send_auto_reply(to_email, ticket_id):
-    # MongoDB connection (inside function)
+    """
+    Sends an auto-reply email using ZeptoMail and updates MongoDB
+    with the status. Skips known bounce/system email addresses and avoids
+    sending duplicate replies for the same ticket.
+    """
+    # ------------------ STEP 1: Block common system emails ------------------
+    blocked_email_patterns = [
+        r"(?i)^no[-_]?reply@",            
+        r"(?i)^mailer-daemon@",            
+        r"(?i)^postmaster@",               
+        r"(?i)^bounce@",                   
+        r"(?i)^daemon@",                   
+        r"(?i)^donotreply@",               
+        r"(?i)^auto[-_]?response@",        
+        r"(?i)^do[-_]?not[-_]?reply@",     
+        r"(?i)email\.teams\.microsoft\.com$",
+        r"(?i)^replyto@email\.microsoft\.com$",
+        r"(?i)^indiaevents@salesforce\.com$"
+    ]
+
+    for pattern in blocked_email_patterns:
+        if re.search(pattern, to_email):
+            print(f"[Auto-Reply Skipped] Blocked or system email detected: {to_email}")
+            return  # Skip sending
+    # ------------------ STEP 2: Connect to MongoDB ------------------
     try:
         client = MongoClient("mongodb://localhost:27017/")
         db = client["CRM_Tickit_Management_System"]  
         ticket_collection = db["email_generated_tickets"]
     except Exception as mongo_conn_error:
-        print(f"MongoDB connection failed: {mongo_conn_error}")
-        return  # Abort email sending if DB connection is critical
-
-    # (OPTIONAL) Log domain info
+        print(f"[MongoDB Error] Connection failed: {mongo_conn_error}")
+        return
+    # ------------------ STEP 3: Avoid Duplicate Auto-Replies ------------------
+    existing_ticket = ticket_collection.find_one({"ticket_id": ticket_id})
+    if existing_ticket:
+        if existing_ticket.get("email_acknowledgement_status") == "success":
+            print(f"[Auto-Reply Skipped] Already sent for Ticket ID: {ticket_id}")
+            return
+    # ------------------ STEP 4: Prepare Email ------------------
     email_domain = to_email.split('@')[-1].lower()
-    print(f"Auto-reply target domain: {email_domain}")
-
-    # Email content
+    print(f"[Auto-Reply Initiated] Sending to: {to_email} | Domain: {email_domain}")
     subject = f"Your Support Ticket Is Generated: {ticket_id}"
     html_body = f"""
     <div style="font-family: Arial, sans-serif; font-size: 14px;">
@@ -501,8 +532,6 @@ def send_auto_reply(to_email, ticket_id):
         <p>Best regards,<br><strong>Support Team</strong></p>
     </div>
     """
-
-    # ZeptoMail payload and headers
     payload = {
         "from": {"address": SUPPORT_EMAIL},
         "to": [
@@ -516,22 +545,19 @@ def send_auto_reply(to_email, ticket_id):
         "subject": subject,
         "htmlbody": html_body
     }
-
     headers = {
         'accept': "application/json",
         'content-type': "application/json",
         'authorization': ZEPTO_API_KEY
     }
-
-    # Try sending email and updating MongoDB flags
+    # ------------------ STEP 5: Send Email & Update MongoDB ------------------
     try:
         response = requests.post(ZEPTO_API_URL, json=payload, headers=headers)
         response.raise_for_status()
 
-        print(f"Auto-reply successfully sent to {to_email} (Ticket ID: {ticket_id})")
-        print(f"Response Code: {response.status_code} - {response.text}")
+        print(f"[Auto-Reply Success] Sent to {to_email} (Ticket ID: {ticket_id})")
+        print(f"[Response] Code: {response.status_code} - {response.text}")
 
-        # Update MongoDB document with 3 required fields
         ticket_collection.update_one(
             {"ticket_id": ticket_id},
             {"$set": {
@@ -542,10 +568,9 @@ def send_auto_reply(to_email, ticket_id):
         )
 
     except requests.exceptions.HTTPError as http_err:
-        print(f"HTTP Error while sending to {to_email}: {http_err}")
-        print(f"Response: {response.status_code} - {response.text}")
+        print(f"[HTTP Error] While sending to {to_email}: {http_err}")
+        print(f"[Response] Code: {response.status_code} - {response.text}")
 
-        # Update MongoDB with HTTP error
         ticket_collection.update_one(
             {"ticket_id": ticket_id},
             {"$set": {
@@ -556,9 +581,8 @@ def send_auto_reply(to_email, ticket_id):
         )
 
     except Exception as e:
-        print(f"General error occurred: {str(e)}")
+        print(f"[General Error] While sending to {to_email}: {str(e)}")
 
-        # Update MongoDB with general error
         ticket_collection.update_one(
             {"ticket_id": ticket_id},
             {"$set": {
@@ -569,11 +593,33 @@ def send_auto_reply(to_email, ticket_id):
         )
 
 
+def is_blocked_email(email_address):
+    """Check if the email address matches any of the blocked patterns."""
+    blocked_email_patterns = [
+        r"(?i)^no[-_]?reply@",                      
+        r"(?i)^mailer-daemon@",                    
+        r"(?i)^postmaster@",                       
+        r"(?i)^bounce@",                           
+        r"(?i)^daemon@",                           
+        r"(?i)^donotreply@",                       
+        r"(?i)^auto[-_]?response@",                
+        r"(?i)^do[-_]?not[-_]?reply@",             
+        r"(?i)email\.teams\.microsoft\.com$",      
+        r"(?i)^replyto@email\.microsoft\.com$",    
+        r"(?i)^indiaevents@salesforce\.com$"       
+    ]
+    email_address = email_address.lower()
+    for pattern in blocked_email_patterns:
+        if re.search(pattern, email_address):
+            return True
+    return False
+
 def fetch_support_emails_via_nylas():
     print("=" * 90)
     print("Starting Nylas email fetch process...")
 
     try:
+        # Step 1: Fetch unread emails from Nylas
         url = f"{NYLAS_API_BASE}/v3/grants/{GRANT_ID}/messages"
         headers = {
             "Accept": "application/json",
@@ -583,31 +629,35 @@ def fetch_support_emails_via_nylas():
 
         params = {
             "limit": 50,
-            "unread": True
+            "unread": True  # Only fetch unread emails
         }
 
         response = requests.get(url, headers=headers, params=params)
         response.raise_for_status()
 
         emails = response.json().get("data", [])
-
         print(f"Fetched {len(emails)} unread emails.")
 
         for i, email_obj in enumerate(emails, start=1):
             print(f"\n--- Processing Email {i} ---")
 
             message_id = email_obj.get("id")
-
             if ticket_collection.find_one({"message_id": message_id}):
                 print(f"Skipping duplicate email with message_id: {message_id}")
-                continue  # Skip duplicate email
+                continue
 
             subject = email_obj.get("subject", "No Subject")
             from_email = email_obj.get("from", [{}])[0].get("email", "unknown@unknown.com")
+
+            # BLOCK unwanted emails
+            if is_blocked_email(from_email):
+                print(f"Skipped blocked email sender: {from_email}")
+                continue
+
             body = email_obj.get("snippet", "")
 
+            # Generate ticket details
             ticket_id = f"T{uuid.uuid4().hex[:10].upper()}"
-
             now = datetime.now()
             ticket_creation_date = now.strftime("%d-%m-%Y")
             ticket_creation_time = now.strftime("%H:%M:%S")
@@ -623,15 +673,25 @@ def fetch_support_emails_via_nylas():
                 "department": "Support",
                 "status": "Open",
                 "email": from_email,
-                "message_id": message_id,  # Storing message_id for future duplicate check
+                "message_id": message_id
             }
 
             print("Inserting ticket into MongoDB...")
             ticket_collection.insert_one(ticket_data)
             print(f"Ticket Inserted with Ticket ID: {ticket_id}")
 
-            # Send the auto-reply only if the email domain is allowed
+            # Send auto-reply
             send_auto_reply(from_email, ticket_id)
+
+            # Mark email as read
+            try:
+                mark_read_url = f"{NYLAS_API_BASE}/v3/grants/{GRANT_ID}/messages/{message_id}"
+                mark_read_payload = {"unread": False}
+                mark_response = requests.put(mark_read_url, json=mark_read_payload, headers=headers)
+                mark_response.raise_for_status()
+                print(f"Marked message_id {message_id} as read.")
+            except requests.exceptions.RequestException as mark_err:
+                print(f"Failed to mark email {message_id} as read: {mark_err}")
 
         print("\nFinished processing all Nylas emails.")
         print("=" * 60)
@@ -641,8 +701,22 @@ def fetch_support_emails_via_nylas():
     except Exception as e:
         print("General error occurred while fetching emails via Nylas:", str(e))
 
-# Execute the function
-fetch_support_emails_via_nylas()
+
+def start_scheduler():
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(fetch_support_emails_via_nylas, 'interval', seconds=15)
+    scheduler.start()
+    print("📅 APScheduler started. Fetching Nylas emails every 15 seconds.")
+
+    try:
+        while True:
+            time.sleep(1)
+    except (KeyboardInterrupt, SystemExit):
+        scheduler.shutdown()
+        print("🔻 Scheduler stopped.")
+
+start_scheduler()
+
 
 """ API End Point to trigger email Fetching Function """
 @csrf_exempt
